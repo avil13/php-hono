@@ -1,5 +1,7 @@
 # Pinned Hono conformance fixtures
 
+**English** | [Русский](README.ru.md)
+
 The PHP suite reads committed fixtures offline. Node and an upstream checkout are needed only to regenerate them. The baseline is Hono **4.13.16**, commit `c91b60a251186fb024557c6d55a11d8e388f179c`.
 
 With Node 24 or newer (native TypeScript stripping), run from the project root:

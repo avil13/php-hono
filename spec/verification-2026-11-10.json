@@ -74,9 +74,9 @@
   "published": false,
   "package": {
     "archive": "build/php-hono-1.0.0.zip",
-    "bytes": 318672,
-    "sha256": "ab566b8c3288d68b89546e55164c9c59f2b5a30e4bc4d22b375e7f5176a2f106",
-    "entries": 69,
+    "bytes": 455573,
+    "sha256": "1c4751eaac8605d7da755d4470836d915fbc17f75a09b1e4ddb1f1712c228e1d",
+    "entries": 89,
     "consumer": {
       "status": "passed",
       "php": "8.5.12",

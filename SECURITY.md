@@ -1,9 +1,11 @@
 # Security policy
 
-До публикации 1.0 исправления принимаются в текущую ветку разработки. После выпуска поддерживается последняя patch-версия ветки 1.x; поддержка PHP начинается с 8.5.
+**English** | [Русский](SECURITY.ru.md)
 
-Не публикуйте exploit или секреты в открытом issue. Используйте **Security → Report a vulnerability** в репозитории, если private vulnerability reporting включён. Если приватный канал ещё не настроен, откройте issue с просьбой предоставить приватный контакт, без деталей уязвимости.
+Before the 1.0 release, fixes are accepted on the current development branch. After release, the latest patch version of the 1.x branch is supported. PHP support starts at 8.5.
 
-Для воспроизведения нужны версия/commit, PHP и runtime, минимальный код и обезличенный запрос. Сообщите ожидаемое и фактическое поведение. Срок исправления определяется после оценки; гарантированного SLA нет.
+Do not publish exploits or secrets in a public issue. Use **Security → Report a vulnerability** in the repository if private vulnerability reporting is enabled. If a private channel has not been configured, open an issue asking for a private contact without including vulnerability details.
 
-Deployment boundary: доверенные reverse proxies настраиваются приложением/сервером; forwarded headers не делают схему/IP доверенными автоматически. Для auth нужен HTTPS. Raw multipart parsing, JWT, signed cookies и WebSocket не входят в эту версию. Ограничения и безопасный порядок middleware описаны в docs/.
+To reproduce a report, provide the version/commit, PHP and runtime versions, minimal code, and a request with sensitive data removed. Describe the expected and actual behavior. The fix timeline is determined after assessment; there is no guaranteed SLA.
+
+Deployment boundary: trusted reverse proxies must be configured by the application/server. Forwarded headers do not automatically make the scheme or IP trusted. Authentication requires HTTPS. Raw multipart parsing, JWT, signed cookies, and WebSocket are not included in this version. Limitations and safe middleware ordering are described in the [documentation](docs/en/README.md).

@@ -1,5 +1,7 @@
 # Расширение Context и зависимости
 
+[English](../en/context-extensions.md) | **Русский**
+
 API php-hono 1.0 для PHP 8.5. [Оглавление](README.md).
 
 Состояние текущего запроса хранится в обычных объектах приложения. Middleware создаёт объект, записывает его в Context через `set()`, а handler получает его с проверкой типа через `extension()`. Это композиция: наследовать Context для добавления собственных полей не требуется.
@@ -39,7 +41,7 @@ Middleware-поставщик должен выполняться до handler-�
 
 ## Контракт extension
 
-Сигнатура реализованного метода [Context::extension](../src/Context.php) с PHPDoc:
+Сигнатура реализованного метода [Context::extension](../../src/Context.php) с PHPDoc:
 
 ```text
 /**
@@ -196,7 +198,7 @@ $psrApp->get('/api/me', new WhoAmI('Example API'));
 
 ## Запускаемый пример
 
-[examples/context-di.php](../examples/context-di.php) возвращает готовый `Hono`: `AttachTenant` получает request factory через конструктор, `HelloTenant` получает конфигурацию через конструктор, а явный mapper переносит `RequestMetadata` из PSR attribute в extension. Классы примера находятся в [examples/ContextDi](../examples/ContextDi); внешний контейнер не нужен. Tenant задан доверенной конфигурацией bootstrap, а request ID создаётся заново для каждого вызова.
+[examples/context-di.php](../../examples/context-di.php) возвращает готовый `Hono`: `AttachTenant` получает request factory через конструктор, `HelloTenant` получает конфигурацию через конструктор, а явный mapper переносит `RequestMetadata` из PSR attribute в extension. Классы примера находятся в [examples/ContextDi](../../examples/ContextDi); внешний контейнер не нужен. Tenant задан доверенной конфигурацией bootstrap, а request ID создаётся заново для каждого вызова.
 
 Из корня проекта после установки Composer dependencies:
 

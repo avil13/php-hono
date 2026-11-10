@@ -28,7 +28,16 @@ try {
             throw new RuntimeException('Development or generated file leaked into package: ' . $file);
         }
     }
-    foreach (['composer.json', 'src/Hono.php', 'LICENSE', 'README.md'] as $required) {
+    foreach ([
+        'composer.json',
+        'src/Hono.php',
+        'LICENSE',
+        'README.md',
+        'README.ru.md',
+        'docs/README.md',
+        'docs/en/README.md',
+        'docs/ru/README.md',
+    ] as $required) {
         if (!in_array($required, $files, strict: true)) {
             throw new RuntimeException('Required package file missing: ' . $required);
         }

@@ -1,6 +1,6 @@
 # Спецификация PHP Hono
 
-Выбранный профиль реализован 10 ноября 2026. Окончательные PHP-сигнатуры — [API reference](../docs/api.md), доказательства проверок — [статус реализации](implementation-status.md). Историческое разделение MVP/1.0 сохранено для трассировки задач.
+Выбранный профиль реализован 10 ноября 2026. Окончательные PHP-сигнатуры — [API reference](../docs/ru/api.md), доказательства проверок — [статус реализации](implementation-status.md). Историческое разделение MVP/1.0 сохранено для трассировки задач.
 
 ## Цель и границы
 
@@ -142,7 +142,7 @@ PSR-15 attributes и Context variables — отдельные хранилища
 
 ## Явные различия и исключения
 
-Все различия перечисляются в `docs/compatibility.md` и имеют собственные PHP-tests: PSR вместо Fetch; sync вместо Promise; обязательные paths; ограниченная route grammar и path length; 400 для malformed URI; единый 500 для забывшего Response handler; правила headers при замене Response; PHP JSON types/числа; SAPI multipart normalization; конечный body buffer и проверка фактической длины даже при наличии Content-Length; отсутствие browser/edge bindings и TypeScript inference. Integer-like ключи PHP array могут приводиться к int — точное JS object key typing не обещается. JSX/WebSocket намеренно отсутствуют по требованию пользователя.
+Все различия перечисляются в `docs/ru/compatibility.md` и имеют собственные PHP-tests: PSR вместо Fetch; sync вместо Promise; обязательные paths; ограниченная route grammar и path length; 400 для malformed URI; единый 500 для забывшего Response handler; правила headers при замене Response; PHP JSON types/числа; SAPI multipart normalization; конечный body buffer и проверка фактической длины даже при наличии Content-Length; отсутствие browser/edge bindings и TypeScript inference. Integer-like ключи PHP array могут приводиться к int — точное JS object key typing не обещается. JSX/WebSocket намеренно отсутствуют по требованию пользователя.
 
 Неподдерживаемые параметры API должны отклоняться явно. Не добавлять заглушки, которые возвращают успешный результат без выполнения обещанной функции.
 

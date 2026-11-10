@@ -1,21 +1,23 @@
-# Benchmark baseline — 10 ноября 2026
+# Benchmark baseline — November 10, 2026
 
-Это измерения php-hono на рабочей машине, а не сравнение с другими фреймворками и не обещание production throughput. Сырые данные и разброс сохранены в [results](results/).
+**English** | [Русский](README.ru.md)
 
-## Среда и методика
+These are php-hono measurements on a development machine, not a comparison with other frameworks or a promise of production throughput. Raw data and variation between runs are recorded in [results](results/).
 
-- Apple M3 Pro, 36 GiB RAM, Darwin 25.6 arm64. Docker Desktop: 12 CPU, 8.21 GB RAM; PHP 8.5.12 Linux arm64. FPM image закреплён digest в [compose.yml](compose.yml).
-- CLI: OPcache выключен, JIT disabled, memory_limit 128M. FPM: OPcache On, JIT disabled, стандартный pool. Worker: нативный FrankenPHP 1.13.5, PHP 8.5.12, один worker, без настройки JIT.
-- Router/full dispatch: 10/100/1000 routes, пять измеряемых раундов по 1000 запросов после прогрева, monotonic hrtime. Каждый проход проверяет ответ.
-- [dispatch.php](dispatch.php): 0/1/5/10 native либо PSR-15 passthrough middleware, позднее совпадение parameter route. Extension mode добавляет initializer одного request-state object и читает его через typed extension в endpoint.
-- [scenarios.php](scenarios.php): полный dispatch static/dynamic/miss/overlap. [router.php](router.php): только matching. Готовый PSR request используется повторно; его создание не входит в warm dispatch.
-- Bootstrap в dispatch.json включает прогрев autoloader в первом случае. [cold.php](cold.php) отдельно запускается десять раз в новых PHP процессах: require/autoload, регистрация 100 маршрутов, первый dispatch. Запуск процесса PHP не входит в измеряемый интервал.
+## Environment and methodology
 
-## Полный dispatch
+- Apple M3 Pro, 36 GiB RAM, Darwin 25.6 arm64. Docker Desktop: 12 CPUs, 8.21 GB RAM; PHP 8.5.12 Linux arm64. The FPM image is pinned by digest in [compose.yml](compose.yml).
+- CLI: OPcache off, JIT disabled, memory_limit 128M. FPM: OPcache on, JIT disabled, default pool. Worker: native FrankenPHP 1.13.5, PHP 8.5.12, one worker, no JIT tuning.
+- Router/full dispatch: 10/100/1000 routes, five measured rounds of 1000 requests after warmup, using monotonic hrtime. Every iteration verifies the response.
+- [dispatch.php](dispatch.php): 0/1/5/10 native or PSR-15 passthrough middleware, with a parameter route matching late in the table. Extension mode adds an initializer for one request-state object and reads it through a typed extension in the endpoint.
+- [scenarios.php](scenarios.php): full dispatch for static/dynamic/miss/overlap cases. [router.php](router.php): matching only. A prepared PSR request is reused; creating it is excluded from warm dispatch.
+- Bootstrap in dispatch.json includes autoloader warmup in the first case. [cold.php](cold.php) runs separately ten times in new PHP processes: require/autoload, registration of 100 routes, and the first dispatch. PHP process startup is outside the measured interval.
 
-Медианы, микросекунды на запрос. Min/max каждого сценария находятся в JSON.
+## Full dispatch
 
-| Routes | Без middleware | 5 native | 5 PSR-15 | Typed state + 5 native |
+Medians, in microseconds per request. Each scenario's min/max values are stored in JSON.
+
+| Routes | No middleware | 5 native | 5 PSR-15 | Typed state + 5 native |
 | --- | ---: | ---: | ---: | ---: |
 | 10 | 6.81 | 9.85 | 39.90 | 10.22 |
 | 100 | 19.03 | 21.81 | 54.31 | 23.59 |
@@ -27,13 +29,13 @@
 | 100 | 13.55 | 19.10 | 14.60 | 19.85 |
 | 1000 | 143.26 | 143.71 | 111.00 | 149.30 |
 
-Холодный bootstrap: медиана **7.41 ms**, диапазон 6.16–8.30; первый dispatch: **4.19 ms**, диапазон 3.25–13.53. Peak PHP memory в CLI прогонах — 4 MiB. Docker bind mounts и выключенный CLI OPcache влияют на cold load.
+Cold bootstrap: median **7.41 ms**, range 6.16–8.30; first dispatch: **4.19 ms**, range 3.25–13.53. Peak PHP memory in CLI runs was 4 MiB. Docker bind mounts and disabled CLI OPcache affect cold loading.
 
-Инструментированный [profile.php](profile.php): на 1000 маршрутах matching занимает **95.5%** времени dispatch. Это измерение границ компонентов, не sampling-профиль VM. Последовательный router — основная цель следующей оптимизации на больших таблицах.
+Instrumented [profile.php](profile.php): with 1000 routes, matching accounts for **95.5%** of dispatch time. This measures component boundaries rather than sampling the VM. The sequential router is the main target for the next optimization on large route tables.
 
 ## HTTP
 
-100 parameter routes, JSON response, RequestId + SecureHeaders, путь `/route/99/42`. Клиент Node 26.11.1 fetch на host: 20 warmup, три раунда по 1000 запросов, concurrency 1 и 8. Каждый ответ полностью прочитан и проверен.
+100 parameter routes, a JSON response, RequestId + SecureHeaders, path `/route/99/42`. The client uses Node 26.11.1 fetch on the host: 20 warmup requests, three rounds of 1000 requests, concurrency 1 and 8. Every response is fully read and verified.
 
 | Runtime | Concurrency | Median req/s | Min–max req/s |
 | --- | ---: | ---: | ---: |
@@ -42,21 +44,21 @@
 | Worker | 1 | 5135 | 4042–5213 |
 | Worker | 8 | 10194 | 9970–10275 |
 
-FPM работает внутри Docker с Caddy 2.11.7, worker — нативно на host. Различаются OS, networking, filesystem и pool; эти числа **не являются чистым сравнением режимов PHP**. Результат включает Node client, loopback и сервер. Для production выводов нужны длительные одинаковые нагрузки на одинаковом host. Сравнения со Slim/Mezzio/Flight/Phalcon этим прогоном не проводились.
+FPM runs inside Docker with Caddy 2.11.7; the worker runs natively on the host. The OS, networking, filesystem, and pool differ, so these figures **are not a controlled comparison of PHP execution modes**. Results include the Node client, loopback, and server. Production conclusions require sustained, identical workloads on the same host. This run did not compare Slim, Mezzio, Flight, or Phalcon.
 
-## Память streaming
+## Streaming memory
 
-[stream-memory.php](stream-memory.php) прочитал **1 GiB** из generator по 64 KiB чанкам через `read(8192)`, не сохраняя весь результат. Рост выделенных PHP страниц по `memory_get_peak_usage(true)` — 0 bytes при уже выделенном heap; это не означает отсутствие использования памяти. Проверка ограничивает рост 8 MiB и включена в CI.
+[stream-memory.php](stream-memory.php) read **1 GiB** from a generator yielding 64 KiB chunks through `read(8192)`, without retaining the complete output. Additional PHP pages allocated according to `memory_get_peak_usage(true)` amounted to 0 bytes within the already allocated heap; this does not mean that no memory was used. The check limits growth to 8 MiB and runs in CI.
 
-`getContents()` и приведение streaming body к строке материализуют содержимое и такой гарантии не имеют.
+`getContents()` and casting a streaming body to a string materialize its contents and do not provide this guarantee.
 
-## Решение
+## Decision
 
-В 1.0 сохранены OrderedRouter и ограниченный eager PSR-15 bridge. Новая реализация router не сравнивалась с baseline, поэтому доказанного ускорения для её включения нет. Следующий эксперимент — уменьшить число regex-кандидатов по method/prefix, сохранив общий порядок всех matches; одновременно сравнивать warm dispatch, cold boot, память и conformance. Bridge оптимизировать с сохранением replay/body-limit/request-view контрактов.
+Version 1.0 retains OrderedRouter and the bounded, eager PSR-15 bridge. No alternative router implementation has been compared with the baseline, so there is no measured speedup to justify including one. The next experiment is to reduce regex candidates by method/prefix while preserving the overall order of every match. Compare warm dispatch, cold boot, memory, and conformance together. Bridge optimizations must preserve the replay, body-limit, and request-view contracts.
 
-## Воспроизведение
+## Reproducing the results
 
-В checkout с PHP 8.5 и установленными Composer dependencies:
+In a checkout with PHP 8.5 and Composer dependencies installed:
 
 ```sh
 php benchmarks/router.php 1000
@@ -70,12 +72,12 @@ node benchmarks/http.mjs http://127.0.0.1:18087 1000
 docker compose -p php-hono-benchmark -f benchmarks/compose.yml down
 ```
 
-Worker запускается в отдельном терминале с FrankenPHP 1.13.5/PHP 8.5:
+Start the worker in a separate terminal using FrankenPHP 1.13.5/PHP 8.5:
 
 ```sh
 PHP_HONO_BENCH_ROOT="$PWD" XDG_CONFIG_HOME="$PWD/var/benchmark-config" XDG_DATA_HOME="$PWD/var/benchmark-data" frankenphp run --config benchmarks/Caddyfile.worker --adapter caddyfile
-# В первом терминале:
+# In the first terminal:
 node benchmarks/http.mjs http://127.0.0.1:18088 1000
 ```
 
-После измерения остановите worker через Ctrl-C. Не запускайте параллельно другие benchmarks/тесты; сохраняйте JSON и версии CPU/OS/runtime, OPcache/JIT, pool/concurrency рядом с результатами. Изменение цифр само по себе не вызывает CI failure: correctness и ограниченная память проверяются отдельно.
+Stop the worker with Ctrl-C after measuring. Do not run other benchmarks or tests concurrently. Record the JSON results alongside CPU/OS/runtime versions, OPcache/JIT settings, and pool/concurrency settings. A change in timing figures alone does not fail CI: correctness and bounded memory are checked separately.

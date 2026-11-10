@@ -30,10 +30,10 @@
 
 PHP 8.5+, Composer, PSR-4, PSR-7/17 на HTTP-границе, синхронный Hono-style middleware, PHP-FPM и встроенный PHP server для MVP. Один простой router; оптимизации после измерений. Для 1.0 предлагается FrankenPHP worker mode как первый постоянный процесс.
 
-Расширение Context — через собственные объекты состояния и `extension(class-string)`, зависимости handlers — через конструкторы. Внешний PSR-11 container допускается при сборке приложения; собственный контейнер и resolver не требуются. [Руководство и примеры](../docs/context-extensions.md).
+Расширение Context — через собственные объекты состояния и `extension(class-string)`, зависимости handlers — через конструкторы. Внешний PSR-11 container допускается при сборке приложения; собственный контейнер и resolver не требуются. [Руководство и примеры](../docs/ru/context-extensions.md).
 
-Mago 1.59.0 — выбранный formatter/linter со строгими правилами; PHPStan max проверяет типы. В T01 входят read-only pre-commit по staged snapshot и те же проверки в CI. [Разработка и проверки](../docs/development.md).
+Mago 1.59.0 — выбранный formatter/linter со строгими правилами; PHPStan max проверяет типы. В T01 входят read-only pre-commit по staged snapshot и те же проверки в CI. [Разработка и проверки](../docs/ru/development.md).
 
-PHP 8.5, поддержка сторонних middleware, исключение JSX/WebSocket, расширяемый Context с DI-подходом и строгие Mago/pre-commit проверки согласованы пользователем. Реализованный пакет называется `php-hono/php-hono`, namespace `PhpHono`. Окончательные сигнатуры перечислены в [API reference](../docs/api.md).
+PHP 8.5, поддержка сторонних middleware, исключение JSX/WebSocket, расширяемый Context с DI-подходом и строгие Mago/pre-commit проверки согласованы пользователем. Реализованный пакет называется `php-hono/php-hono`, namespace `PhpHono`. Окончательные сигнатуры перечислены в [API reference](../docs/ru/api.md).
 
-Исходные оценки и критерии ниже сохранены как история планирования. Реализация находится в `src/`, пользовательское руководство в `docs/`, воспроизводимая приёмка — в `tests/` и `tools/`. [Benchmark baseline](../benchmarks/README.md) подтверждает необходимость дальнейшего измерения оптимизаций router; превосходство над другими PHP-фреймворками не заявляется.
+Исходные оценки и критерии ниже сохранены как история планирования. Реализация находится в `src/`, пользовательское руководство в `docs/`, воспроизводимая приёмка — в `tests/` и `tools/`. [Benchmark baseline](../benchmarks/README.ru.md) подтверждает необходимость дальнейшего измерения оптимизаций router; превосходство над другими PHP-фреймворками не заявляется.

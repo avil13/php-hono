@@ -1,12 +1,14 @@
 # Совместимость и границы API
 
-[Оглавление](README.md) · [Manifest conformance](../tests/Fixtures/hono-v4.13.16/manifest.json)
+[English](../en/compatibility.md) | **Русский**
+
+[Оглавление](README.md) · [Manifest conformance](../../tests/Fixtures/hono-v4.13.16/manifest.json)
 
 Ориентир — **Hono 4.13.16**, commit [`c91b60a251186fb024557c6d55a11d8e388f179c`](https://github.com/honojs/hono/tree/c91b60a251186fb024557c6d55a11d8e388f179c). PHP Hono — самостоятельный порт выбранных HTTP-контрактов на PHP 8.5+. Документация JavaScript Hono может описывать другую версию и дополнительные возможности.
 
 ## Что проверяется сравнением с Hono
 
-[Генератор fixtures](../tools/conformance/README.md) выполняет настоящие исходники закреплённого Hono в Node. В репозитории сохранены 19 сценариев и 34 HTTP-запроса с upstream status, headers, body и trace. PHPUnit читает их без Node и сети. Повторная генерация детерминирована; генератор проверяет commit, версию и отсутствие локальных изменений исходников.
+[Генератор fixtures](../../tools/conformance/README.ru.md) выполняет настоящие исходники закреплённого Hono в Node. В репозитории сохранены 19 сценариев и 34 HTTP-запроса с upstream status, headers, body и trace. PHPUnit читает их без Node и сети. Повторная генерация детерминирована; генератор проверяет commit, версию и отсутствие локальных изменений исходников.
 
 Корпус покрывает порядок маршрутов, middleware onion, optional/wildcard/segment regex, параметры и percent decoding, HEAD/404, ранний ответ, замену Response, обработку ошибок, query/JSON/form и изоляцию запросов. Header names и их порядок нормализуются; для Content-Type допускается разница в пробеле после `;`. JSON сравнивается структурно с сохранением различия object/array. Остальные body bytes и порядок trace сохраняются.
 
@@ -69,4 +71,4 @@ PSR attributes и Context variables не синхронизируются авт
 
 JSX и WebSocket исключены по требованию пользователя. Полный raw multipart parser, JWT/JWK, response cache store, дополнительные runtimes и client codegen не входят в 1.0. Производительность PHP-порта измеряется отдельно; результаты JavaScript benchmarks и обещание быть быстрее всех PHP-фреймворков сюда не переносятся.
 
-При изменении baseline обновляются generator, fixtures, manifest и документация отличий. Инструкции: [регенерация fixtures](../tools/conformance/README.md). Исходные проектные решения: [spec](../spec/02-specification.md).
+При изменении baseline обновляются generator, fixtures, manifest и документация отличий. Инструкции: [регенерация fixtures](../../tools/conformance/README.ru.md). Исходные проектные решения: [spec](../../spec/02-specification.md).

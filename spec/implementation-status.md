@@ -11,7 +11,7 @@
 - Hono baseline **4.13.16**, commit `c91b60a251186fb024557c6d55a11d8e388f179c`: **19 сценариев / 34 HTTP-запроса**, полученных выполнением настоящего upstream. Повторная генерация детерминирована. Поддержка всех exports Hono не заявляется.
 - Реальные `middlewares/uuid` **2.1.0** и `middlewares/response-time` **2.1.0** работают через bridge. Альтернативные HTTP messages/factories проверены с Guzzle PSR-7 **2.13.2**, default Nyholm **1.8.2**.
 - FPM: PHP **8.5.12** + Caddy **2.11.7** в закреплённых Docker images. Worker: FrankenPHP **1.13.5** / PHP **8.5.12**. Проверены chunks до завершения producer, HEAD/204/205, несколько Set-Cookie, uploads/transport limits, ошибки после headers, отмена по disconnect, restart и изоляция typed state/validation.
-- Streaming memory: **1 GiB** прочитан без накопления output; дополнительное выделение PHP страниц не превысило проверяемые 8 MiB. [Методика и результаты](../benchmarks/README.md).
+- Streaming memory: **1 GiB** прочитан без накопления output; дополнительное выделение PHP страниц не превысило проверяемые 8 MiB. [Методика и результаты](../benchmarks/README.ru.md).
 - Production ZIP проходит установку в отдельный чистый consumer через Composer **2.11.2** с `--no-dev`: framework + **6 runtime dependencies**, без dev tools. Проверены autoload, routing/JSON и PSR-15. В архив не входят vendor, caches, tests, tools, benchmarks и spec.
 
 Длительный worker soak прошёл: **5000 probes, 18 346 HTTP-запросов, один boot**, PHP memory **771 624–771 696 bytes**, удержанных Context/Identity/Scope — **0**. Отдельный restart-прогон: 379 HTTP-запросов, 19 boots. Найденный рост памяти после исключений устранён переносом GC внутрь callback, до native teardown. Исходный дефект воспроизводился в том же сценарии и превышал неизменённый порог 1 MiB. Оба режима включены в CI.
@@ -59,7 +59,7 @@ CI настроен в `.github/workflows/ci.yml`: основной check, FPM/w
 
 ## Принятые различия
 
-Полный список находится в [compatibility](../docs/compatibility.md) и manifest. Существенные уточнения при реализации:
+Полный список находится в [compatibility](../docs/ru/compatibility.md) и manifest. Существенные уточнения при реализации:
 
 - После `$next()` params восстанавливаются к вызывающему handler; raw `req->path()` сохраняется при `strict=false`.
 - PSR-15 bridge предоставляет read-only replayable body из общего ограниченного кеша; URI/method rewrite и повторный downstream вызов внутри bridge запрещены. Pre-routing PSR pipeline может изменить запрос до Hono.
@@ -82,6 +82,6 @@ php benchmarks/stream-memory.php
 php tools/release/check-package.php
 ```
 
-Версии, runtime configuration, ограничения и команды дополнительных прогонов описаны в [development](../docs/development.md), [deployment](../docs/deployment.md), [benchmark report](../benchmarks/README.md). Локальный hook уже установлен для этого checkout: `core.hooksPath=.githooks`; рабочие файлы и Git index он не форматирует.
+Версии, runtime configuration, ограничения и команды дополнительных прогонов описаны в [development](../docs/ru/development.md), [deployment](../docs/ru/deployment.md), [benchmark report](../benchmarks/README.ru.md). Локальный hook уже установлен для этого checkout: `core.hooksPath=.githooks`; рабочие файлы и Git index он не форматирует.
 
 Для выпуска отдельно понадобятся review и Git tag/публикация. Remote CI, другие runtimes/OS, нагрузка production и сравнительный benchmark других фреймворков в эти локальные результаты не входят.
