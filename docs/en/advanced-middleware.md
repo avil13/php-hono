@@ -2,7 +2,7 @@
 
 **English** | [Русский](../ru/advanced-middleware.md)
 
-[Contents](README.md) · [Middleware order](middleware.md) · [Core middleware](builtin-middleware.md)
+[Contents](overview.md) · [Middleware order](middleware.md) · [Core middleware](builtin-middleware.md)
 
 All classes below belong to `PhpHono\Middleware` and are registered before endpoints with `$app->use($path, $middleware)`. They can also appear in the handler list of an individual route. The examples are independent; `$app` is an instance of `PhpHono\Hono`.
 

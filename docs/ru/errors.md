@@ -2,7 +2,7 @@
 
 [English](../en/errors.md) | **Русский**
 
-API 1.0 для PHP 8.5, namespace `PhpHono`. [Оглавление](README.md).
+API 1.0 для PHP 8.5, namespace `PhpHono`. [Оглавление](overview.md).
 
 Ожидаемую ошибку приложения можно выразить обычным HTTP-ответом. Необработанный `Throwable` передаётся в `onError`. По умолчанию framework возвращает для неизвестной ошибки 500 с текстом `Internal Server Error`, не раскрывая клиенту stack trace.
 

@@ -38,11 +38,20 @@ curl http://127.0.0.1:8080/hello/Ada
 
 Пакет подготовлен под именем `php-hono/php-hono`, namespace `PhpHono`. Публикация в Packagist и release tag не выполнялись; до публикации используйте checkout или локальный Composer path/artifact repository, как описано в [установке](docs/ru/getting-started.md).
 
-- [Документация](docs/ru/README.md), [API reference](docs/ru/api.md), [встроенные middleware](docs/ru/builtin-middleware.md).
+- [Документация](docs/ru/overview.md), [API reference](docs/ru/api.md), [встроенные middleware](docs/ru/builtin-middleware.md).
 - [PSR-15 bridge](docs/ru/middleware.md#psr-15-middleware), [Context и DI](docs/ru/context-extensions.md).
 - [Запуск и streaming](docs/ru/deployment.md), [разработка и pre-commit](docs/ru/development.md).
 - [План и статус реализации](spec/implementation-status.md), [измерения](benchmarks/README.ru.md).
 
-Проверки: Mago **1.59.0** (format + строгий lint), PHPStan **max**, PHPUnit; offline fixtures настоящего Hono **4.13.16** на закреплённом commit. Node нужен только для регенерации fixtures и вспомогательных HTTP-прогонов, не для работы библиотеки.
+Сайт документации на VitePress настроен для [GitHub Pages](https://avil13.github.io/php-hono/): английский — основной язык, русская версия доступна через переключатель. Для локального просмотра нужен Node.js 24 LTS:
+
+```sh
+npm ci
+npm run docs:dev
+```
+
+Для production-сборки выполните `npm run docs:build`, затем `npm run docs:preview`. Workflow GitHub Actions и подготовка первой публикации описаны в [руководстве разработки](docs/ru/development.md#сайт-документации-и-github-pages).
+
+Проверки: Mago **1.59.0** (format + строгий lint), PHPStan **max**, PHPUnit; offline fixtures настоящего Hono **4.13.16** на закреплённом commit. Node используется для сайта документации, регенерации fixtures и вспомогательных HTTP-прогонов; PHP-библиотеке он не требуется.
 
 Лицензия [MIT](LICENSE); сведения об upstream — [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md).

@@ -2,7 +2,7 @@
 
 [English](../en/request.md) | **Русский**
 
-API php-hono 1.0 для PHP 8.5. [Оглавление](README.md).
+API php-hono 1.0 для PHP 8.5. [Оглавление](overview.md).
 
 В обработчике `$c->req` предоставляет доступ к запросу. Методы чтения не отправляют ответ: результат нужно передать в один из [response helpers](context-response.md).
 

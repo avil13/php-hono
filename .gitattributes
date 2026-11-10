@@ -18,3 +18,7 @@
 /composer.lock export-ignore
 /AGENTS.md export-ignore
 /.DS_Store export-ignore
+/node_modules export-ignore
+/package.json export-ignore
+/package-lock.json export-ignore
+/docs/.vitepress export-ignore

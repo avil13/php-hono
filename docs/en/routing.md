@@ -2,7 +2,7 @@
 
 **English** | [Русский](../ru/routing.md)
 
-Routing in php-hono 1.0 for PHP 8.5+. [Documentation contents](README.md).
+Routing in php-hono 1.0 for PHP 8.5+. [Documentation contents](overview.md).
 
 ## Your first route
 

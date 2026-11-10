@@ -2,7 +2,7 @@
 
 **English** | [Русский](../ru/request.md)
 
-php-hono 1.0 API for PHP 8.5. [Contents](README.md).
+php-hono 1.0 API for PHP 8.5. [Contents](overview.md).
 
 Inside a handler, `$c->req` provides access to the request. Reading methods do not send a response: pass their result to one of the [response helpers](context-response.md).
 

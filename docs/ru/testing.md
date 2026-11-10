@@ -2,7 +2,7 @@
 
 [English](../en/testing.md) | **Русский**
 
-[Оглавление](README.md) · Тесты приложений и реализованного API 1.0.
+[Оглавление](overview.md) · Тесты приложений и реализованного API 1.0.
 
 Format/lint, PHPStan и pre-commit входят в общий набор [проверок разработки](development.md). Hook проверяет staged PHP-код через Mago; полный набор тестов и проверку зависимостей по lockfile выполняет CI.
 

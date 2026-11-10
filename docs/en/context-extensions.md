@@ -2,7 +2,7 @@
 
 **English** | [Русский](../ru/context-extensions.md)
 
-php-hono 1.0 API for PHP 8.5. [Contents](README.md).
+php-hono 1.0 API for PHP 8.5. [Contents](overview.md).
 
 State for the current request lives in ordinary application objects. Middleware creates an object, stores it in Context with `set()`, and a handler retrieves it with a type check through `extension()`. This is composition: adding your own fields does not require extending the Context class.
 
@@ -41,7 +41,7 @@ The middleware that provides the object must run before the handler that consume
 
 ## The extension contract
 
-The implemented [Context::extension](../../src/Context.php) signature and PHPDoc:
+The implemented [Context::extension](https://github.com/avil13/php-hono/blob/master/src/Context.php) signature and PHPDoc:
 
 ```text
 /**
@@ -198,7 +198,7 @@ When the bridge exits, upstream middleware sees its own raw request again. Conte
 
 ## Runnable example
 
-[examples/context-di.php](../../examples/context-di.php) returns a configured `Hono`: `AttachTenant` receives a request factory through its constructor, `HelloTenant` receives configuration through its constructor, and an explicit mapper transfers `RequestMetadata` from a PSR attribute to an extension. The example classes are in [examples/ContextDi](../../examples/ContextDi); no external container is needed. The tenant comes from trusted bootstrap configuration, while a new request ID is created for each invocation.
+[examples/context-di.php](https://github.com/avil13/php-hono/blob/master/examples/context-di.php) returns a configured `Hono`: `AttachTenant` receives a request factory through its constructor, `HelloTenant` receives configuration through its constructor, and an explicit mapper transfers `RequestMetadata` from a PSR attribute to an extension. The example classes are in [examples/ContextDi](https://github.com/avil13/php-hono/tree/master/examples/ContextDi); no external container is needed. The tenant comes from trusted bootstrap configuration, while a new request ID is created for each invocation.
 
 From the project root after installing Composer dependencies:
 

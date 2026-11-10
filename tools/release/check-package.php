@@ -22,7 +22,7 @@ try {
     Process::run($root, [...$composer, 'archive', '--format=zip', '--dir=build', '--file=php-hono-' . $version]);
     $archive = $root . '/build/php-hono-' . $version . '.zip';
     $files = array_filter(explode("\n", trim(Process::run($root, ['unzip', '-Z1', $archive]))));
-    $forbidden = '~^(?:vendor|var|build|coverage|tests|spec|tools|benchmarks|\.git|\.github|\.githooks)(?:/|$)|^(?:mago\.toml|phpstan\.neon\.dist|phpunit\.xml|composer\.lock|AGENTS\.md|\.DS_Store)$~D';
+    $forbidden = '~^(?:vendor|node_modules|docs/\.vitepress|var|build|coverage|tests|spec|tools|benchmarks|\.git|\.github|\.githooks)(?:/|$)|^(?:package\.json|package-lock\.json|mago\.toml|phpstan\.neon\.dist|phpunit\.xml|composer\.lock|AGENTS\.md|\.DS_Store)$~D';
     foreach ($files as $file) {
         if (preg_match($forbidden, $file) === 1) {
             throw new RuntimeException('Development or generated file leaked into package: ' . $file);
@@ -35,8 +35,8 @@ try {
         'README.md',
         'README.ru.md',
         'docs/README.md',
-        'docs/en/README.md',
-        'docs/ru/README.md',
+        'docs/en/index.md',
+        'docs/ru/index.md',
     ] as $required) {
         if (!in_array($required, $files, strict: true)) {
             throw new RuntimeException('Required package file missing: ' . $required);

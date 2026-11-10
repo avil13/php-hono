@@ -2,7 +2,7 @@
 
 **English** | [Русский](../ru/getting-started.md)
 
-[Contents](README.md) · Implemented API 1.0, PHP 8.5.
+[Contents](overview.md) · Implemented API 1.0, PHP 8.5.
 
 ## Requirements and installation
 

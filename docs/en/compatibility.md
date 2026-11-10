@@ -2,13 +2,13 @@
 
 **English** | [Русский](../ru/compatibility.md)
 
-[Contents](README.md) · [Conformance manifest](../../tests/Fixtures/hono-v4.13.16/manifest.json)
+[Contents](overview.md) · [Conformance manifest](https://github.com/avil13/php-hono/blob/master/tests/Fixtures/hono-v4.13.16/manifest.json)
 
 The baseline is **Hono 4.13.16**, commit [`c91b60a251186fb024557c6d55a11d8e388f179c`](https://github.com/honojs/hono/tree/c91b60a251186fb024557c6d55a11d8e388f179c). PHP Hono is an independent port of selected HTTP contracts to PHP 8.5+. JavaScript Hono documentation may describe a different version and additional features.
 
 ## What the Hono comparison checks
 
-The [fixture generator](../../tools/conformance/README.md) executes the pinned Hono source in Node. The repository stores 19 scenarios and 34 HTTP requests with upstream status, headers, body, and trace. PHPUnit reads them without Node or network access. Regeneration is deterministic; the generator verifies the commit, version, and absence of local source changes.
+The [fixture generator](https://github.com/avil13/php-hono/blob/master/tools/conformance/README.md) executes the pinned Hono source in Node. The repository stores 19 scenarios and 34 HTTP requests with upstream status, headers, body, and trace. PHPUnit reads them without Node or network access. Regeneration is deterministic; the generator verifies the commit, version, and absence of local source changes.
 
 The corpus covers route ordering, middleware onion execution, optional/wildcard/segment regex patterns, parameters and percent decoding, HEAD/404, early responses, Response replacement, error handling, query/JSON/form data, and request isolation. Header names and their order are normalized; Content-Type may differ in whitespace after `;`. JSON is compared structurally while preserving the distinction between objects and arrays. Other body bytes and trace order are preserved.
 
@@ -71,4 +71,4 @@ Implemented features include routing, Request/Context/Response, errors, typed ex
 
 JSX and WebSocket are excluded by user request. A full raw multipart parser, JWT/JWK, a response cache store, additional runtimes, and client code generation are outside 1.0. PHP port performance is measured separately; JavaScript benchmark results and claims of outperforming every PHP framework do not carry over.
 
-Changing the baseline requires updating the generator, fixtures, manifest, and difference documentation. See [fixture regeneration](../../tools/conformance/README.md). Original design decisions are recorded in the [specification (Russian)](../../spec/02-specification.md).
+Changing the baseline requires updating the generator, fixtures, manifest, and difference documentation. See [fixture regeneration](https://github.com/avil13/php-hono/blob/master/tools/conformance/README.md). Original design decisions are recorded in the [specification (Russian)](https://github.com/avil13/php-hono/blob/master/spec/02-specification.md).

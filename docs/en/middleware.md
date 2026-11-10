@@ -2,7 +2,7 @@
 
 **English** | [Русский](../ru/middleware.md)
 
-Middleware in php-hono 1.0 for PHP 8.5+. [Documentation contents](README.md).
+Middleware in php-hono 1.0 for PHP 8.5+. [Documentation contents](overview.md).
 
 Middleware performs shared request processing: it can validate data, pass control to the next handler, modify the response or end the request early.
 

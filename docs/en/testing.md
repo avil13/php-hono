@@ -2,7 +2,7 @@
 
 **English** | [Русский](../ru/testing.md)
 
-[Contents](README.md) · Testing applications and the implemented API 1.0.
+[Contents](overview.md) · Testing applications and the implemented API 1.0.
 
 Formatting/linting, PHPStan and pre-commit are part of the shared [development checks](development.md). The hook checks staged PHP code with Mago; CI runs the complete test suite and checks dependencies against the lockfile.
 

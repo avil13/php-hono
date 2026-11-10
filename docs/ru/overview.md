@@ -1,10 +1,10 @@
 # PHP Hono
 
-[English](../en/README.md) | **Русский**
+[English](../en/overview.md) | **Русский**
 
 PHP Hono — HTTP-фреймворк для **PHP 8.5+** с маршрутизацией и middleware в стиле Hono. Обработчик получает Context и возвращает PSR-7 Response; приложение можно вызывать в памяти или подключать к HTTP-серверу через адаптер.
 
-**Статус: реализация выбранного профиля 1.0.** Пакет `php-hono/php-hono`, namespace `PhpHono`. Исходники, примеры, строгие проверки, PSR-15 bridge, middleware, streaming и worker находятся в репозитории. Внешняя публикация не выполнялась. [Статус задач и проверки](../../spec/implementation-status.md).
+**Статус: реализация выбранного профиля 1.0.** Пакет `php-hono/php-hono`, namespace `PhpHono`. Исходники, примеры, строгие проверки, PSR-15 bridge, middleware, streaming и worker находятся в репозитории. Внешняя публикация не выполнялась. [Статус задач и проверки](https://github.com/avil13/php-hono/blob/master/spec/implementation-status.md).
 
 ```php
 use PhpHono\Context;
@@ -51,6 +51,6 @@ $app->get('/users/:id', fn (Context $c) =>
 - [Базовые middleware и cookies](builtin-middleware.md).
 - [Auth, CSRF, ETag, gzip, files, 405 и trailing slash](advanced-middleware.md).
 - [Переход от проекта 0.1 к 1.0](migration.md).
-- [Benchmark baseline](../../benchmarks/README.ru.md).
+- [Benchmark baseline](https://github.com/avil13/php-hono/blob/master/benchmarks/README.ru.md).
 
-Источники решений — [спецификация](../../spec/02-specification.md) и [статус реализации](../../spec/implementation-status.md). Поддержка всего набора exports Hono не заявляется.
+Источники решений — [спецификация](https://github.com/avil13/php-hono/blob/master/spec/02-specification.md) и [статус реализации](https://github.com/avil13/php-hono/blob/master/spec/implementation-status.md). Поддержка всего набора exports Hono не заявляется.

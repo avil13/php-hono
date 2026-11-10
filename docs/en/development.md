@@ -2,7 +2,7 @@
 
 **English** | [Русский](../ru/development.md)
 
-[Contents](README.md) · PHP 8.5+. Configuration and commands are part of the repository; the Git hook is enabled explicitly for each checkout.
+[Contents](overview.md) · PHP 8.5+. Configuration and commands are part of the repository; the Git hook is enabled explicitly for each checkout.
 
 ## Tools
 
@@ -116,7 +116,7 @@ Git allows local hooks to be bypassed, so CI must repeat checks against the comm
 
 Tests in `tests/Tooling` create temporary Git repositories and check these scenarios without changing the current index or Git hooks. The main CI job runs `composer check`; a separate runtime matrix performs [FPM/FrankenPHP HTTP checks](deployment.md#reproducible-transport-checks). The third-party swew/test package is not part of the required toolchain; the project's testing API is PHPUnit.
 
-Next: [testing](testing.md), [T01 plan (Russian)](../../spec/tasks/01-mvp.md#t01), and [check architecture (Russian)](../../spec/03-architecture.md).
+Next: [testing](testing.md), [T01 plan (Russian)](https://github.com/avil13/php-hono/blob/master/spec/tasks/01-mvp.md#t01), and [check architecture (Russian)](https://github.com/avil13/php-hono/blob/master/spec/03-architecture.md).
 
 ## Checking the library archive
 
@@ -135,3 +135,29 @@ Version `1.0.0` is assigned only to the local package-repository entry used to t
 English is the primary documentation language. The English guides live in `docs/en/`; their Russian counterparts live in `docs/ru/`. The repository entry points are `README.md` and `README.ru.md`.
 
 When changing a public API or its documented behavior, update both language versions and keep the links between corresponding pages intact. Use links to pages in the same language for navigation within a guide. The historical specification and planning documents under `spec/` remain in Russian.
+
+## Documentation site and GitHub Pages
+
+The documentation site uses VitePress and Node.js 24 LTS. Node is a development dependency for building the site; PHP applications do not need it. Run these commands from the repository root:
+
+```sh
+npm ci
+npm run docs:dev
+```
+
+Open the local URL printed by VitePress. To check the production output, stop the development server and run:
+
+```sh
+npm run docs:build
+npm run docs:preview
+```
+
+The stable VitePress version is pinned to `1.6.4`. Its transitive Vite dependency is overridden to `6.4.6` to receive security fixes. This is outside VitePress 1.x's declared Vite range; when updating either package, verify the production build, development server, search, and navigation, and run `npm audit`.
+
+The build output is `docs/.vitepress/dist`. The configuration in `docs/.vitepress/config.mts` provides language navigation, sidebars, local search, and the `/php-hono/` base path for the project site. English is the homepage language; the guide indexes are `/php-hono/en/` and `/php-hono/ru/`. Keep links between guides relative so they work both on GitHub and on the site. Links to source code, examples, benchmarks, and specifications outside `docs/` point to GitHub. VitePress checks internal page links during the build; keep that check enabled. See the [VitePress deployment guide](https://vuejs.github.io/vitepress/v1/guide/deploy).
+
+The `.github/workflows/docs.yml` workflow builds documentation changes in pull requests and on pushes to `master`. Only pushes to `master` and manual runs on `master` publish the built artifact to the `github-pages` environment; pull requests do not deploy.
+
+Before the first deployment, open the repository's **Settings → Pages → Build and deployment**, then set **Source** to **GitHub Actions**. Push the workflow and documentation changes to `master`, or run the documentation workflow manually on `master`. After a successful deployment, the site is available at [avil13.github.io/php-hono](https://avil13.github.io/php-hono/); the workflow's deployment job reports the published URL. No `gh-pages` branch or separate deployment token is needed. See [GitHub's publishing-source instructions](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+
+When forking the repository or adding a custom domain, update the VitePress `base` and repository links for the new address before publishing. Commit `package-lock.json` with dependency changes; keep `node_modules`, VitePress caches, and generated site output out of Git and the Composer library archive.

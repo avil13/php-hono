@@ -2,7 +2,7 @@
 
 **English** | [Русский](../ru/deployment.md)
 
-[Contents](README.md) · PHP 8.5+
+[Contents](overview.md) · PHP 8.5+
 
 `Hono::request()`, `handle()`, and `fetch()` return a PSR-7 Response. Use the SAPI adapter to send it to a client. `fetch()` synchronously handles an incoming request; it is not an HTTP client.
 
@@ -22,7 +22,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 Sapi::run(require dirname(__DIR__) . '/app.php');
 ```
 
-A complete example is available in [examples/public/index.php](../../examples/public/index.php). From the repository root:
+A complete example is available in [examples/public/index.php](https://github.com/avil13/php-hono/blob/master/examples/public/index.php). From the repository root:
 
 ```sh
 php -S 127.0.0.1:8080 -t examples/public examples/public/index.php
@@ -85,7 +85,7 @@ Once headers have been sent, a producer error can no longer change the status: t
 
 ## FrankenPHP worker
 
-[examples/worker.php](../../examples/worker.php) loads the application once:
+[examples/worker.php](https://github.com/avil13/php-hono/blob/master/examples/worker.php) loads the application once:
 
 ```php
 use PhpHono\Adapter\FrankenPhpWorker;
@@ -99,7 +99,7 @@ FrankenPhpWorker::run($app, maxRequests: 500);
 
 A minimal Caddyfile for the example, run from the repository root:
 
-```caddyfile
+```text
 {
     frankenphp
 }

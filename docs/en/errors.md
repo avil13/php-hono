@@ -2,7 +2,7 @@
 
 **English** | [Русский](../ru/errors.md)
 
-API 1.0 for PHP 8.5, namespace `PhpHono`. [Contents](README.md).
+API 1.0 for PHP 8.5, namespace `PhpHono`. [Contents](overview.md).
 
 An expected application error can be expressed as an ordinary HTTP response. An unhandled `Throwable` is passed to `onError`. By default, the framework returns status 500 with `Internal Server Error` for an unknown error, without exposing a stack trace to the client.
 

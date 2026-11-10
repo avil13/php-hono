@@ -2,7 +2,7 @@
 
 **English** | [Русский](../ru/api.md)
 
-[Contents](README.md). This is the implemented API for the selected PHP profile. The namespace is `PhpHono`; `Internal` classes and methods marked `@internal` are not part of the stable extension API.
+[Contents](overview.md). This is the implemented API for the selected PHP profile. The namespace is `PhpHono`; `Internal` classes and methods marked `@internal` are not part of the stable extension API.
 
 ## Hono
 

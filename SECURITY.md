@@ -8,4 +8,4 @@ Do not publish exploits or secrets in a public issue. Use **Security → Report 
 
 To reproduce a report, provide the version/commit, PHP and runtime versions, minimal code, and a request with sensitive data removed. Describe the expected and actual behavior. The fix timeline is determined after assessment; there is no guaranteed SLA.
 
-Deployment boundary: trusted reverse proxies must be configured by the application/server. Forwarded headers do not automatically make the scheme or IP trusted. Authentication requires HTTPS. Raw multipart parsing, JWT, signed cookies, and WebSocket are not included in this version. Limitations and safe middleware ordering are described in the [documentation](docs/en/README.md).
+Deployment boundary: trusted reverse proxies must be configured by the application/server. Forwarded headers do not automatically make the scheme or IP trusted. Authentication requires HTTPS. Raw multipart parsing, JWT, signed cookies, and WebSocket are not included in this version. Limitations and safe middleware ordering are described in the [documentation](docs/en/overview.md).

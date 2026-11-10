@@ -2,7 +2,7 @@
 
 [English](../en/development.md) | **Русский**
 
-[Оглавление](README.md) · PHP 8.5+. Конфигурация и команды находятся в репозитории; Git hook подключается явно для каждого checkout.
+[Оглавление](overview.md) · PHP 8.5+. Конфигурация и команды находятся в репозитории; Git hook подключается явно для каждого checkout.
 
 ## Инструменты
 
@@ -116,7 +116,7 @@ Hook не меняет index/working tree, не выполняет `git add`, `s
 
 Тесты `tests/Tooling` создают временные Git repositories и проверяют эти сценарии без изменения текущего index или Git hooks. Основной CI запускает `composer check`; отдельная runtime matrix выполняет [FPM/FrankenPHP HTTP-проверки](deployment.md#воспроизводимая-проверка-транспорта). Сторонний swew/test не входит в обязательный toolchain; тестовый API проекта — PHPUnit.
 
-Далее: [тестирование](testing.md), [план T01](../../spec/tasks/01-mvp.md#t01), [архитектура проверок](../../spec/03-architecture.md).
+Далее: [тестирование](testing.md), [план T01](https://github.com/avil13/php-hono/blob/master/spec/tasks/01-mvp.md#t01), [архитектура проверок](https://github.com/avil13/php-hono/blob/master/spec/03-architecture.md).
 
 ## Проверка архива библиотеки
 
@@ -135,3 +135,29 @@ php tools/release/check-package.php
 Английский — основной язык документации. Английские руководства находятся в `docs/en/`, русские версии — в `docs/ru/`. Входные страницы репозитория — `README.md` и `README.ru.md`.
 
 При изменении публичного API или описанного поведения обновляйте обе языковые версии и сохраняйте ссылки между соответствующими страницами. Для навигации внутри руководства используйте страницы на том же языке. Историческая спецификация и планы в `spec/` остаются на русском.
+
+## Сайт документации и GitHub Pages
+
+Сайт документации использует VitePress и Node.js 24 LTS. Node нужен при разработке для сборки сайта; PHP-приложениям он не требуется. Из корня репозитория выполните:
+
+```sh
+npm ci
+npm run docs:dev
+```
+
+Откройте локальный адрес, который выведет VitePress. Чтобы проверить production-сборку, остановите dev server и выполните:
+
+```sh
+npm run docs:build
+npm run docs:preview
+```
+
+Стабильная версия VitePress закреплена на `1.6.4`. Его транзитивная зависимость Vite заменена через override на `6.4.6` для получения исправлений безопасности. Эта версия выходит за объявленный VitePress 1.x диапазон Vite; при обновлении любого из пакетов проверяйте production-сборку, dev server, поиск и навигацию, а также запускайте `npm audit`.
+
+Результат сборки находится в `docs/.vitepress/dist`. Конфигурация `docs/.vitepress/config.mts` задаёт переключатель языков, боковую навигацию, локальный поиск и базовый путь `/php-hono/` для сайта проекта. Главная страница — на английском; оглавления руководств доступны по адресам `/php-hono/en/` и `/php-hono/ru/`. Сохраняйте относительные ссылки между руководствами: они работают и на GitHub, и на сайте. Ссылки на исходники, примеры, benchmarks и спецификации вне `docs/` ведут на GitHub. При сборке VitePress проверяет внутренние ссылки на страницы; не отключайте эту проверку. Подробнее — в [руководстве публикации VitePress](https://vuejs.github.io/vitepress/v1/guide/deploy).
+
+Workflow `.github/workflows/docs.yml` собирает изменения документации в pull requests и при push в `master`. Только push в `master` и ручной запуск на `master` публикуют собранный artifact в environment `github-pages`; pull requests не выполняют deploy.
+
+Перед первой публикацией откройте **Settings → Pages → Build and deployment** репозитория и выберите **Source → GitHub Actions**. Отправьте workflow и изменения документации в `master` либо запустите workflow документации вручную на `master`. После успешного deploy сайт будет доступен по адресу [avil13.github.io/php-hono](https://avil13.github.io/php-hono/); deployment job выведет опубликованный URL. Отдельная ветка `gh-pages` и отдельный токен для публикации не нужны. См. [инструкцию GitHub по выбору источника публикации](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+
+При создании fork или добавлении собственного домена перед публикацией измените VitePress `base` и ссылки на репозиторий под новый адрес. Изменения зависимостей коммитьте вместе с `package-lock.json`; `node_modules`, кеши VitePress и результат сборки сайта не должны попадать в Git и Composer-архив библиотеки.

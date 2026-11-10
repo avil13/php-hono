@@ -2,7 +2,7 @@
 
 [English](../en/advanced-middleware.md) | **Русский**
 
-[Оглавление](README.md) · [Порядок middleware](middleware.md) · [Базовые middleware](builtin-middleware.md)
+[Оглавление](overview.md) · [Порядок middleware](middleware.md) · [Базовые middleware](builtin-middleware.md)
 
 Все классы ниже находятся в `PhpHono\Middleware` и подключаются до endpoints через `$app->use($path, $middleware)`. Они также подходят для списка handlers отдельного маршрута. Примеры независимы; `$app` — экземпляр `PhpHono\Hono`.
 

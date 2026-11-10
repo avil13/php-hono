@@ -38,11 +38,20 @@ curl http://127.0.0.1:8080/hello/Ada
 
 The package is prepared under the name `php-hono/php-hono`, with the `PhpHono` namespace. It has not been published to Packagist or tagged for release. Until publication, use a checkout or a local Composer path/artifact repository as described in the [installation guide](docs/en/getting-started.md).
 
-- [Documentation](docs/en/README.md), [API reference](docs/en/api.md), [built-in middleware](docs/en/builtin-middleware.md).
+- [Documentation](docs/en/overview.md), [API reference](docs/en/api.md), [built-in middleware](docs/en/builtin-middleware.md).
 - [PSR-15 bridge](docs/en/middleware.md#psr-15-middleware), [Context and DI](docs/en/context-extensions.md).
 - [Deployment and streaming](docs/en/deployment.md), [development and pre-commit checks](docs/en/development.md).
 - [Implementation plan and status (Russian)](spec/implementation-status.md), [benchmarks](benchmarks/README.md).
 
-Checks use Mago **1.59.0** for formatting and strict linting, PHPStan at **max** level, and PHPUnit. Offline fixtures are generated from real Hono **4.13.16** at a pinned commit. Node is needed only to regenerate fixtures and run auxiliary HTTP checks, not to use the library.
+The VitePress documentation site is configured for [GitHub Pages](https://avil13.github.io/php-hono/), with English as the primary language and a Russian translation. To preview it locally with Node.js 24 LTS:
+
+```sh
+npm ci
+npm run docs:dev
+```
+
+For a production build, run `npm run docs:build`, then `npm run docs:preview`. See [documentation publishing](docs/en/development.md#documentation-site-and-github-pages) for the GitHub Actions workflow and first-deployment setup.
+
+Checks use Mago **1.59.0** for formatting and strict linting, PHPStan at **max** level, and PHPUnit. Offline fixtures are generated from real Hono **4.13.16** at a pinned commit. Node is used for the documentation site, fixture regeneration, and auxiliary HTTP checks; the PHP library does not require it.
 
 Licensed under [MIT](LICENSE). Upstream attribution is recorded in [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md).

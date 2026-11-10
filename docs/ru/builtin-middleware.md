@@ -48,7 +48,7 @@ $app->post('/api/greetings', new Validator('json', static function (mixed $input
 | `header` | Карта строковых значений с именами в нижнем регистре |
 | `cookie` | Результат `Cookie::get($c)` |
 
-Malformed JSON/form encoding остаётся ошибкой 400, превышение лимита — 413; callback в этом случае не вызывается. `valid()` без успешно сохранённого target выбрасывает `LogicException`. Для параметров ставьте validator на маршрут `/:id`, а не в глобальное `use('*', ...)`, у которого нет параметров endpoint. Реализация: [Validator.php](../../src/Middleware/Validator.php).
+Malformed JSON/form encoding остаётся ошибкой 400, превышение лимита — 413; callback в этом случае не вызывается. `valid()` без успешно сохранённого target выбрасывает `LogicException`. Для параметров ставьте validator на маршрут `/:id`, а не в глобальное `use('*', ...)`, у которого нет параметров endpoint. Реализация: [Validator.php](https://github.com/avil13/php-hono/blob/master/src/Middleware/Validator.php).
 
 ## BodyLimit
 
@@ -68,7 +68,7 @@ $app->use('/upload', new BodyLimit(1_048_576,
 ));
 ```
 
-Некорректный `Content-Length` даёт 400 и не вызывает этот callback. Callback применяется только к проверке BodyLimit, а не к ошибкам endpoint. SAPI multipart уже разобран PHP: `post_max_size`, `upload_max_filesize` и ограничения HTTP-сервера действуют раньше framework. Подробнее: [чтение запроса](request.md). Реализация: [BodyLimit.php](../../src/Middleware/BodyLimit.php).
+Некорректный `Content-Length` даёт 400 и не вызывает этот callback. Callback применяется только к проверке BodyLimit, а не к ошибкам endpoint. SAPI multipart уже разобран PHP: `post_max_size`, `upload_max_filesize` и ограничения HTTP-сервера действуют раньше framework. Подробнее: [чтение запроса](request.md). Реализация: [BodyLimit.php](https://github.com/avil13/php-hono/blob/master/src/Middleware/BodyLimit.php).
 
 ## Cors
 
@@ -91,7 +91,7 @@ Preflight — `OPTIONS` с непустыми `Origin` и `Access-Control-Reques
 
 Для динамического/точного origin добавляется `Vary: Origin`; существующие значения объединяются без повторов, `Vary: *` сохраняется. Headers применяются после `$next()`, поэтому действуют и на downstream 404/500. Middleware заменяет собственные `Access-Control-*` headers: endpoint не может обойти allowlist, вернув `Access-Control-Allow-Origin: *`. `Set-Cookie` и другие headers сохраняются. Отказ origin сам по себе не заменяет ответ на 403 — браузер не получает разрешение прочитать его.
 
-CORS не заменяет аутентификацию или CSRF-проверку. Реализация: [Cors.php](../../src/Middleware/Cors.php).
+CORS не заменяет аутентификацию или CSRF-проверку. Реализация: [Cors.php](https://github.com/avil13/php-hono/blob/master/src/Middleware/Cors.php).
 
 ## SecureHeaders
 
@@ -124,7 +124,7 @@ $app->use('*', new SecureHeaders([
 ]));
 ```
 
-Подберите CORP/COOP/CSP и HSTS к ресурсам и HTTPS-политике своего приложения. Реализация: [SecureHeaders.php](../../src/Middleware/SecureHeaders.php).
+Подберите CORP/COOP/CSP и HSTS к ресурсам и HTTPS-политике своего приложения. Реализация: [SecureHeaders.php](https://github.com/avil13/php-hono/blob/master/src/Middleware/SecureHeaders.php).
 
 ## RequestId
 
@@ -134,7 +134,7 @@ new PhpHono\Middleware\RequestId(string $headerName = 'X-Request-Id', string $co
 
 Принимается входное значение длиной 1–255 символов из `A-Z a-z 0-9 _ = -`. Иначе генерируется новый случайный 128-битный идентификатор: 32 шестнадцатеричных символа через `random_bytes(16)`. Это не UUID. Значение доступно в `$c->get('requestId')` и response header; middleware повторно устанавливает header после `$next()`, включая обработанную ошибку.
 
-Настройка имени header и context key явная. Request ID помогает корреляции, но не подтверждает личность пользователя: допустимый входной ID клиент может выбрать сам. Реализация: [RequestId.php](../../src/Middleware/RequestId.php).
+Настройка имени header и context key явная. Request ID помогает корреляции, но не подтверждает личность пользователя: допустимый входной ID клиент может выбрать сам. Реализация: [RequestId.php](https://github.com/avil13/php-hono/blob/master/src/Middleware/RequestId.php).
 
 ## Logger
 
@@ -157,7 +157,7 @@ $app->use('*', new RequestId(), new Logger(
 ));
 ```
 
-В примере I/O выбирает приложение. Framework не пишет в stdout и не выбирает скрытый log sink. Исключение sink не меняет HTTP-ответ: оно передаётся в необязательный `onFailure(Throwable): void`. Без диагностического callback сбой записи отбрасывается. Исключение самого `onFailure` тоже не заменяет ответ. Для production подключите независимую диагностику/метрики отказов sink. Реализация: [Logger.php](../../src/Middleware/Logger.php).
+В примере I/O выбирает приложение. Framework не пишет в stdout и не выбирает скрытый log sink. Исключение sink не меняет HTTP-ответ: оно передаётся в необязательный `onFailure(Throwable): void`. Без диагностического callback сбой записи отбрасывается. Исключение самого `onFailure` тоже не заменяет ответ. Для production подключите независимую диагностику/метрики отказов sink. Реализация: [Logger.php](https://github.com/avil13/php-hono/blob/master/src/Middleware/Logger.php).
 
 ## Cookie
 
@@ -192,6 +192,6 @@ $app->post('/preferences', static function (Context $c): ResponseInterface {
 
 `SameSite=None` и префикс `__Secure-` требуют `secure: true`. `__Host-` дополнительно требует `path: '/'` и отсутствующий `domain`. Helpers добавляют отдельный `Set-Cookie` как до, так и после `$next()`; значения не объединяются запятыми.
 
-Для удаления передайте тот же path/domain, с которым cookie был установлен: `Cookie::delete($c, 'theme', ['path' => '/'])`. Helper отправляет пустое значение, `Max-Age=0` и дату Unix epoch. При защищённом префиксе сохраните `secure: true`. Подпись и шифрование cookies не предоставляются. Реализация: [Cookie.php](../../src/Helper/Cookie.php).
+Для удаления передайте тот же path/domain, с которым cookie был установлен: `Cookie::delete($c, 'theme', ['path' => '/'])`. Helper отправляет пустое значение, `Max-Age=0` и дату Unix epoch. При защищённом префиксе сохраните `secure: true`. Подпись и шифрование cookies не предоставляются. Реализация: [Cookie.php](https://github.com/avil13/php-hono/blob/master/src/Helper/Cookie.php).
 
 Другие возможности: [middleware pipeline](middleware.md), [запрос](request.md), [Context и ответы](context-response.md), [расширение Context и DI](context-extensions.md).

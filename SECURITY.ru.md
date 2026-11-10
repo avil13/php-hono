@@ -8,4 +8,4 @@
 
 Для воспроизведения нужны версия/commit, PHP и runtime, минимальный код и обезличенный запрос. Сообщите ожидаемое и фактическое поведение. Срок исправления определяется после оценки; гарантированного SLA нет.
 
-Deployment boundary: доверенные reverse proxies настраиваются приложением/сервером; forwarded headers не делают схему/IP доверенными автоматически. Для auth нужен HTTPS. Raw multipart parsing, JWT, signed cookies и WebSocket не входят в эту версию. Ограничения и безопасный порядок middleware описаны в [документации](docs/ru/README.md).
+Deployment boundary: доверенные reverse proxies настраиваются приложением/сервером; forwarded headers не делают схему/IP доверенными автоматически. Для auth нужен HTTPS. Raw multipart parsing, JWT, signed cookies и WebSocket не входят в эту версию. Ограничения и безопасный порядок middleware описаны в [документации](docs/ru/overview.md).

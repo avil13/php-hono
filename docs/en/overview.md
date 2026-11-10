@@ -1,10 +1,10 @@
 # PHP Hono
 
-**English** | [Русский](../ru/README.md)
+**English** | [Русский](../ru/overview.md)
 
 PHP Hono is an HTTP framework for **PHP 8.5+** with Hono-style routing and middleware. A handler receives a Context and returns a PSR-7 Response. You can call the application in memory or connect it to an HTTP server through an adapter.
 
-**Status: the selected 1.0 feature set is implemented.** The package name is `php-hono/php-hono`, and the namespace is `PhpHono`. The repository contains source code, examples, strict checks, a PSR-15 bridge, middleware, streaming, and a worker adapter. The package has not been published. See the [task status and verification report (Russian)](../../spec/implementation-status.md).
+**Status: the selected 1.0 feature set is implemented.** The package name is `php-hono/php-hono`, and the namespace is `PhpHono`. The repository contains source code, examples, strict checks, a PSR-15 bridge, middleware, streaming, and a worker adapter. The package has not been published. See the [task status and verification report (Russian)](https://github.com/avil13/php-hono/blob/master/spec/implementation-status.md).
 
 ```php
 use PhpHono\Context;
@@ -51,6 +51,6 @@ Start with [your first application](getting-started.md), then read about [middle
 - [Built-in middleware and cookies](builtin-middleware.md).
 - [Auth, CSRF, ETag, gzip, files, 405, and trailing slashes](advanced-middleware.md).
 - [Moving from the 0.1 design to 1.0](migration.md).
-- [Benchmark baseline](../../benchmarks/README.md).
+- [Benchmark baseline](https://github.com/avil13/php-hono/blob/master/benchmarks/README.md).
 
-The [specification](../../spec/02-specification.md) and [implementation status](../../spec/implementation-status.md) record the project decisions in Russian. This library does not claim to support every Hono export.
+The [specification](https://github.com/avil13/php-hono/blob/master/spec/02-specification.md) and [implementation status](https://github.com/avil13/php-hono/blob/master/spec/implementation-status.md) record the project decisions in Russian. This library does not claim to support every Hono export.

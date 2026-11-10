@@ -2,7 +2,7 @@
 
 [English](../en/deployment.md) | **Русский**
 
-[Оглавление](README.md) · PHP 8.5+
+[Оглавление](overview.md) · PHP 8.5+
 
 `Hono::request()`, `handle()` и `fetch()` возвращают PSR-7 Response. Для отправки клиенту используйте SAPI adapter. `fetch()` — синхронная обработка входящего запроса, а не HTTP-клиент.
 
@@ -22,7 +22,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 Sapi::run(require dirname(__DIR__) . '/app.php');
 ```
 
-Готовый пример находится в [examples/public/index.php](../../examples/public/index.php). Из корня репозитория:
+Готовый пример находится в [examples/public/index.php](https://github.com/avil13/php-hono/blob/master/examples/public/index.php). Из корня репозитория:
 
 ```sh
 php -S 127.0.0.1:8080 -t examples/public examples/public/index.php
@@ -85,7 +85,7 @@ Emitter делает flush после каждого доступного chunk 
 
 ## FrankenPHP worker
 
-[examples/worker.php](../../examples/worker.php) загружает приложение один раз:
+[examples/worker.php](https://github.com/avil13/php-hono/blob/master/examples/worker.php) загружает приложение один раз:
 
 ```php
 use PhpHono\Adapter\FrankenPhpWorker;
@@ -99,7 +99,7 @@ FrankenPhpWorker::run($app, maxRequests: 500);
 
 Минимальный Caddyfile для примера, запускаемый из корня репозитория:
 
-```caddyfile
+```text
 {
     frankenphp
 }

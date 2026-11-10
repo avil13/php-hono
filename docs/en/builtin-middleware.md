@@ -48,7 +48,7 @@ $app->post('/api/greetings', new Validator('json', static function (mixed $input
 | `header` | A map of string values with lowercase names |
 | `cookie` | The result of `Cookie::get($c)` |
 
-Malformed JSON or form encoding remains a 400 error, and exceeding the limit produces 413; the callback is not called in either case. Calling `valid()` without a successfully stored target throws `LogicException`. For parameters, place the validator on the `/:id` route, rather than in a global `use('*', ...)`, which has no endpoint parameters. Implementation: [Validator.php](../../src/Middleware/Validator.php).
+Malformed JSON or form encoding remains a 400 error, and exceeding the limit produces 413; the callback is not called in either case. Calling `valid()` without a successfully stored target throws `LogicException`. For parameters, place the validator on the `/:id` route, rather than in a global `use('*', ...)`, which has no endpoint parameters. Implementation: [Validator.php](https://github.com/avil13/php-hono/blob/master/src/Middleware/Validator.php).
 
 ## BodyLimit
 
@@ -68,7 +68,7 @@ $app->use('/upload', new BodyLimit(1_048_576,
 ));
 ```
 
-An invalid `Content-Length` produces 400 without calling this callback. The callback applies only to the BodyLimit check, not endpoint errors. SAPI multipart data has already been parsed by PHP: `post_max_size`, `upload_max_filesize`, and HTTP server limits apply before the framework. Learn more: [reading requests](request.md). Implementation: [BodyLimit.php](../../src/Middleware/BodyLimit.php).
+An invalid `Content-Length` produces 400 without calling this callback. The callback applies only to the BodyLimit check, not endpoint errors. SAPI multipart data has already been parsed by PHP: `post_max_size`, `upload_max_filesize`, and HTTP server limits apply before the framework. Learn more: [reading requests](request.md). Implementation: [BodyLimit.php](https://github.com/avil13/php-hono/blob/master/src/Middleware/BodyLimit.php).
 
 ## Cors
 
@@ -91,7 +91,7 @@ A preflight is an `OPTIONS` request with nonempty `Origin` and `Access-Control-R
 
 For a dynamic or exact origin, `Vary: Origin` is added; existing values are merged without duplicates, and `Vary: *` is preserved. Headers are applied after `$next()`, so they also apply to downstream 404/500 responses. The middleware replaces its own `Access-Control-*` headers: an endpoint cannot bypass the allowlist by returning `Access-Control-Allow-Origin: *`. `Set-Cookie` and other headers are preserved. Denying an origin does not itself replace the response with 403: the browser receives no permission to read it.
 
-CORS does not replace authentication or CSRF checks. Implementation: [Cors.php](../../src/Middleware/Cors.php).
+CORS does not replace authentication or CSRF checks. Implementation: [Cors.php](https://github.com/avil13/php-hono/blob/master/src/Middleware/Cors.php).
 
 ## SecureHeaders
 
@@ -124,7 +124,7 @@ $app->use('*', new SecureHeaders([
 ]));
 ```
 
-Choose CORP/COOP/CSP and HSTS settings that fit your application's resources and HTTPS policy. Implementation: [SecureHeaders.php](../../src/Middleware/SecureHeaders.php).
+Choose CORP/COOP/CSP and HSTS settings that fit your application's resources and HTTPS policy. Implementation: [SecureHeaders.php](https://github.com/avil13/php-hono/blob/master/src/Middleware/SecureHeaders.php).
 
 ## RequestId
 
@@ -134,7 +134,7 @@ new PhpHono\Middleware\RequestId(string $headerName = 'X-Request-Id', string $co
 
 Incoming values are accepted if they contain 1–255 characters from `A-Z a-z 0-9 _ = -`. Otherwise, a new random 128-bit identifier is generated: 32 hexadecimal characters from `random_bytes(16)`. This is not a UUID. The value is available through `$c->get('requestId')` and the response header; the middleware reapplies the header after `$next()`, including after a handled error.
 
-Configure the header name and context key explicitly. A request ID helps correlate events, but does not establish a user's identity: the client can choose any valid incoming ID. Implementation: [RequestId.php](../../src/Middleware/RequestId.php).
+Configure the header name and context key explicitly. A request ID helps correlate events, but does not establish a user's identity: the client can choose any valid incoming ID. Implementation: [RequestId.php](https://github.com/avil13/php-hono/blob/master/src/Middleware/RequestId.php).
 
 ## Logger
 
@@ -157,7 +157,7 @@ $app->use('*', new RequestId(), new Logger(
 ));
 ```
 
-In this example, the application chooses the I/O. The framework does not write to stdout or select a hidden log sink. A sink exception does not change the HTTP response: it is passed to the optional `onFailure(Throwable): void`. Without a diagnostic callback, the write failure is discarded. An exception from `onFailure` itself does not replace the response either. In production, connect independent diagnostics or metrics for sink failures. Implementation: [Logger.php](../../src/Middleware/Logger.php).
+In this example, the application chooses the I/O. The framework does not write to stdout or select a hidden log sink. A sink exception does not change the HTTP response: it is passed to the optional `onFailure(Throwable): void`. Without a diagnostic callback, the write failure is discarded. An exception from `onFailure` itself does not replace the response either. In production, connect independent diagnostics or metrics for sink failures. Implementation: [Logger.php](https://github.com/avil13/php-hono/blob/master/src/Middleware/Logger.php).
 
 ## Cookie
 
@@ -192,6 +192,6 @@ Options: `domain: string`, `path: string` (default `/`), `expires: DateTimeInter
 
 `SameSite=None` and the `__Secure-` prefix require `secure: true`. `__Host-` additionally requires `path: '/'` and no `domain`. Helpers add separate `Set-Cookie` headers both before and after `$next()`; values are not joined with commas.
 
-To delete a cookie, pass the same path/domain used when setting it: `Cookie::delete($c, 'theme', ['path' => '/'])`. The helper sends an empty value, `Max-Age=0`, and the Unix epoch date. For a secure prefix, keep `secure: true`. Cookie signing and encryption are not provided. Implementation: [Cookie.php](../../src/Helper/Cookie.php).
+To delete a cookie, pass the same path/domain used when setting it: `Cookie::delete($c, 'theme', ['path' => '/'])`. The helper sends an empty value, `Max-Age=0`, and the Unix epoch date. For a secure prefix, keep `secure: true`. Cookie signing and encryption are not provided. Implementation: [Cookie.php](https://github.com/avil13/php-hono/blob/master/src/Helper/Cookie.php).
 
 Other features: [middleware pipeline](middleware.md), [request](request.md), [Context and responses](context-response.md), [Context extensions and DI](context-extensions.md).
