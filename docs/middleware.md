@@ -93,6 +93,8 @@ $app->get('/api/preferences', fn (Context $c): ResponseInterface =>
 
 Для каждого запроса создаётся новый Context. Не сохраняйте текущего пользователя или другие request data в static-полях и общих mutable closures: в постоянном worker-процессе они переживут запрос. `has()` отличает отсутствующий ключ от ключа со значением `null`.
 
+Для типизированного состояния middleware записывает `set(AuthContext::class, $auth)`, а следующий handler читает `extension(AuthContext::class)`. Ключи точные, объект должен иметь запрошенный тип; метод не запускает factory/autowiring. Создавайте request state внутри middleware, а зависимости самого callable передавайте конструктором. [Руководство по Context extensions и DI](context-extensions.md).
+
 ## Изменение ответа после next
 
 Для заголовков используйте `$c->header()`. Чтобы заменить тело или статус, установите новый ответ явно:
@@ -115,6 +117,8 @@ $app->use('/legacy', function (Context $c, callable $next): void {
 ## Ошибки middleware
 
 Downstream exception обрабатывается через `onError` до возврата из `$next()`. Код внешнего middleware после `$next()` поэтому может добавить заголовки к ответу ошибки. Исключение, выброшенное самим middleware после `$next()`, тоже попадает в `onError`.
+
+Поэтому возврат из `$next()` не является подтверждением успешной бизнес-операции. Не делайте безусловный commit после него; завершайте транзакцию по явному результату сервиса, а cleanup/rollback незавершённой работы выполняйте в `finally`. [Пример lifecycle](context-extensions.md#lifecycle-и-освобождение-ресурсов).
 
 Есть два недопустимых сценария:
 
@@ -166,6 +170,8 @@ $app->get('/health', fn (Context $c) => $c->json(['ok' => true]));
 Для одного маршрута результат `wrap()` можно передать среди handlers: `$app->get('/health', Psr15::wrap($middleware), $handler)`. Hono callable и PSR middleware работают в общем порядке регистрации.
 
 Bridge передаёт изменённые request headers/body/attributes downstream, допускает ранний Response и точно сохраняет возвращённый PSR response, включая удаление headers/Set-Cookie. Доступный raw body передаётся в повторно читаемом виде из общего ограниченного кеша; это работает и после предыдущего Hono reader, но может потребовать буферизации. Лимит тела приложения сохраняется.
+
+PSR attributes не превращаются в Context extensions автоматически. Разместите mapper после PSR middleware: он читает текущий `$c->req->raw()` и явно записывает объект через `set(Type::class, $object)`. При восстановлении upstream request view variables Context не откатываются; они общие для текущего запроса. [Пример mapper](context-extensions.md#psr-15-attributes-и-typed-extension).
 
 Границы этого профиля:
 

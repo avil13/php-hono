@@ -1,20 +1,26 @@
 # Задачи MVP / 0.1
 
-21 задача, 30–53 человеко-дня без резерва. Все задачи пока имеют статус **planned**. Оценки включают собственные проверки и документацию поведения. Общие требования: PHP 8.5, [контракт](../02-specification.md), [архитектура](../03-architecture.md), отсутствие runtime-зависимости от Node. T21 перенесена из 1.0 в обязательный MVP с сохранением ID и выполняется до T19.
+21 задача, 31–55 человеко-дней без резерва. Все задачи пока имеют статус **planned**. Оценки включают собственные проверки и документацию поведения. Общие требования: PHP 8.5, [контракт](../02-specification.md), [архитектура](../03-architecture.md), отсутствие runtime-зависимости от Node. T21 перенесена из 1.0 в обязательный MVP с сохранением ID и выполняется до T19. 2 ноября 2026 года T06 расширена типизированными extensions и примерами DI (+1 день по обеим границам), а верхняя оценка T01 увеличена на день для Mago и проверки staged snapshot.
 
 ## T01
 
-**Основание Composer-пакета и CI.** Этап M0. Оценка: **1–2 дня**. Зависимости: нет.
+**Основание Composer-пакета, строгие проверки и pre-commit/CI.** Этап M0. Оценка: **1–3 дня**. Зависимости: нет.
 
-Объём: `composer.json`, PSR-4, `src/tests` skeleton, PHPUnit, PHPStan, formatter, PHP 8.5 CI; зависимости PSR/Nyholm из архитектуры. Добавить MIT/attribution для переносимых upstream материалов. Установить рабочее package name для разработки, публикационное имя оставить явным решением перед релизом.
+Объём: `composer.json`/lock, PSR-4, `src/tests` skeleton, PHPUnit, PHPStan `level: max`, **Mago 1.59.0** для format/lint, PHP 8.5 CI; зависимости PSR/Nyholm из архитектуры и dev `psr/container` для bootstrap fixture. Добавить MIT/attribution для переносимых upstream материалов. Установить рабочее package name для разработки, публикационное имя оставить явным решением перед релизом.
 
-Готово, когда: чистый checkout устанавливается на PHP 8.5; Composer validate, один meaningful bootstrap smoke, static analysis и formatting проходят в CI. Versions/extensions воспроизводимы; runtime dependency tree зафиксировано и проверено. HTTP-функциональность в эту задачу не входит.
+Подготовить `mago.toml` с target PHP 8.5, pin версии, default rules плюс обязательные strict-types/strict-behavior/no-eval/no-global/no-variable-variable; warnings и errors блокируют проверку. PHPStan остаётся единственным обязательным type analyzer, второй analyzer Mago не включать без отдельного решения. Определить source/include/exclude paths, узкие исключения для fixtures и запрет blanket baseline для нового кода. Точные команды, исходный профиль и источники — [разработка и проверки](../../docs/development.md).
+
+Добавить Composer scripts format/format:check/lint/analyse/test/check:style/check и versioned `.githooks/pre-commit`, запускающий check:staged. Read-only hook проверяет изолированный снимок Git index вместе со staged конфигурацией, без изменения рабочих файлов/index, stash, autofix и сети. Installer hooks:install работает явно и локально, сохраняет существующие hooks. CI использует ту же версию и профиль, повторяет style/type/tests на commit и не зависит от локального hook.
+
+Готово, когда: чистый checkout устанавливается на PHP 8.5; Composer validate/audit, один meaningful bootstrap smoke, Mago `fmt --check`/`lint`, PHPStan max и PHPUnit проходят в CI. Подтверждены Mago binary/version/config и PHP 8.5 syntax. Плохое форматирование и lint violation блокируют локальную команду, pre-commit и CI. Проверены partial staging в обе стороны, staged изменение config, rename/delete/пробелы в путях, сохранность index/working tree при успехе и ошибке, cleanup temp snapshot и отказ при отсутствующем инструменте. Versions/extensions воспроизводимы; runtime dependency tree зафиксировано и проверено. HTTP-функциональность в эту задачу не входит.
 
 ## T02
 
 **Контракт совместимости и upstream fixtures.** Этап M0. Оценка: **2–3 дня**. Зависимости: T01.
 
 Объём: manifest baseline `4.13.16 / c91b60a251186fb024557c6d55a11d8e388f179c`, JS harness, формат fixtures, PHP-side loader, classifications всех C-01–C-07 сценариев. Закрепить допустимые regex tokens и PCRE resource limits, path limit 8192 bytes, предел body buffer (предложение 8 MiB), header/status defaults, точные неподдерживаемые API. Включить license notice при переносе тестов.
+
+`Context::extension()` классифицировать как PHP-specific дополнение C-04 с собственными PHP tests; не добавлять фиктивный эквивалент этого метода в JS upstream harness. Зафиксировать class/interface keys, LogicException и отсутствие автоматической синхронизации с PSR attributes.
 
 Готово, когда: fixtures можно регенерировать на точном SHA; повторная генерация детерминирована; Node не нужен для чтения fixtures; supported/difference/unsupported различаются явно. Данные охватывают ordering, HEAD, query duplicates и response replacement. До реализации PHP runner допускается ожидаемо неполный, но не ложный зелёный отчёт о совместимости.
 
@@ -44,11 +50,15 @@
 
 ## T06
 
-**Context и состояние Response.** Этап M1. Оценка: **2–3 дня**. Зависимости: T03, T04.
+**Context, типизированные расширения и состояние Response.** Этап M1. Оценка: **3–4 дня**. Зависимости: T03, T04.
 
 Объём: request-scoped env/variables/error, prepared headers/status, фабрики из T03, response()/setResponse(), финализация, escapeHtml helper. Закрепить поведение headers до ответа, после `$next()` и при замене.
 
+Добавить `extension(string $type): object` с generic PHPDoc и runtime `instanceof` по C-04 поверх существующего `set/get` store. Примеры композиции AuthContext/TenantContext, constructor injection и прикладной request factory. Отдельного registry, autowiring или собственного контейнера не создавать.
+
 Готово, когда: C-04 tests проверяют header priority/append/remove, cookie multiplicity, status defaults, explicit replacement, null vs missing variable и отсутствие протекания состояния. Сами response factories не финализируют Context.
+
+Для extensions проверены class/interface key, точность ключа, идентичность объекта при повторном чтении, отсутствие constructor calls при чтении, замена через `set`, missing/null/scalar/wrong type → LogicException. PHPStan выводит конкретный тип из class-string. Общий `get/has` не меняет поведение; разные Context получают разные прикладные request-state objects при корректной инициализации.
 
 ## T07
 
@@ -66,6 +76,8 @@
 
 Готово, когда: nested prefixes, shared route table, snapshot child import и порядок middleware после группировки проверены. Child onError metadata сохраняется для dispatch; child notFound не подменяет root. Изменение frozen table через view невозможно.
 
+Готовый invokable handler с constructor dependencies регистрируется обычным callable без resolver/container lookup при dispatch. Должны работать и явное создание объекта, и сборка в bootstrap через PSR-11 fixture; конкретный внешний контейнер не становится runtime-зависимостью ядра.
+
 ## T09
 
 **Композиция middleware.** Этап M2. Оценка: **2–3 дня**. Зависимости: T06, T07.
@@ -81,6 +93,8 @@
 Объём: App handle/fetch, новый Context на каждый запрос, env, HttpException, root/child error priority, fallback 500, notFound, HEAD и bodyless statuses. App реализует PSR-15 RequestHandlerInterface.
 
 Готово, когда: complete pipeline работает на готовых PSR requests; no-match даёт 404; HEAD выполняет GET chain с исходным методом HEAD, без body; 204/205/304 не содержат body. Ошибки до/после next и failing onError имеют предсказуемые ответы без утечки stack trace. Последовательные запросы одного App изолированы.
+
+Проверить LogicException из `extension()` через обычный onError и из самого onError через fallback 500 без рекурсии. Request-scoped factory/initializer failures проходят те же правила; успешно созданные объекты запроса не удерживаются framework между вызовами.
 
 ## T11
 
@@ -152,6 +166,8 @@
 
 Объём: `PhpHono\Middleware\Psr15::wrap(MiddlewareInterface): callable`, адаптация стороннего объекта в Hono pipeline без изменения его кода, forwarding request attributes/headers/body, точная установка Response внутренней операцией без наследования headers. Запрет неявного rematch при смене URI/method. Пример подключения готового Composer middleware и инструкция для внешнего PSR pipeline перед routing.
 
+Добавить пример и integration test явного mapper `PSR attribute → Context extension` после соответствующего middleware. Проверить тип значения и политику отсутствия/удаления атрибута, отсутствие автоматической обратной синхронизации, сохранение Context variables при восстановлении upstream raw request. Mapper — прикладной callable, не новая обязательная подсистема bridge.
+
 Готово, когда: минимум два реальных пакета — middlewares/uuid и middlewares/response-time — установлены в dev dependencies и проходят integration tests на PHP 8.5; выбранные версии записаны в отчёт. Дополнительные contract tests проверяют short-circuit, attributes/parsed body, замену body, удаление обычных headers/Set-Cookie, normal/404/500/HEAD и смешанный порядок Hono/PSR middleware. Цепочка Hono reader → PSR getBody() → endpoint text/json() сохраняет bytes даже для non-seekable источника: bridge предоставляет replayable body из общего ограниченного кеша. Кеш сохраняется при том же подготовленном stream и инвалидируется при замене; лимиты применяются повторно. Request view восстанавливается после возврата, повторный downstream вызов и URI rewrite дают документированную ошибку. Ограничение error-boundary описано; отдельная проверка внешнего pre-routing middleware показывает, что App получает изменённый запрос. MVP без этого результата не выпускается.
 
 ## T19
@@ -162,10 +178,12 @@
 
 Готово, когда: все compatible fixtures проходят; каждый deliberate difference имеет тест и объяснение; unsupported не попадают в процент успеха. На PHP 8.5 CI проходят analysis/unit/contract/FPM checks; повторные запросы не разделяют состояние. Сохраняется воспроизводимый отчёт проверки.
 
+В приёмку включить typed extensions, сборку invokable handlers через constructor injection/PSR-11 fixture и последовательные requests с разными пользователями, ранним ответом и ошибкой; Context state и mutable данные request factory не протекают через повторно используемый handler.
+
 ## T20
 
 **Документация и пакет MVP 0.1.** Этап M5. Оценка: **1–2 дня**. Зависимости: T19.
 
-Объём: README, quickstart, routing/middleware/errors guide, JSON API и forms examples, FPM config, testing guide, compatibility matrix и changelog. Уточнить namespace/package name, проверить лицензию и содержимое Composer archive.
+Объём: README, quickstart, routing/middleware/errors guide, JSON API и forms examples, FPM config, testing guide, compatibility matrix и changelog. Руководство context-extensions объясняет typed state, constructor injection, необязательный PSR-11 bootstrap и ownership request-scoped ресурсов. Уточнить namespace/package name, проверить лицензию и содержимое Composer archive.
 
 Готово, когда: новый пользователь может установить пакет и повторить примеры на PHP 8.5; ограничения route grammar/multipart понятны без чтения исходников; dev tooling/upstream checkout не попадают в production runtime. Release candidate 0.1 готов к публикации; внешнюю публикацию выполнять отдельным действием при переходе от планирования к выпуску.

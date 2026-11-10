@@ -38,6 +38,7 @@
 | Длина path | Default limit 8192 bytes; превышение даёт 414 |
 | Handler без результата | Если он не вернул/установил Response и не вызвал next — 500 независимо от числа handlers |
 | Response replacement | Собственная политика наследования headers и замены Set-Cookie; см. [Context](context-response.md) |
+| Typed Context extensions | `extension(Type::class)` проверяет объект из того же точного ключа variables; это PHP API с generic PHPDoc, без autowiring или поиска реализации интерфейса |
 | JSON | Объекты stdClass, большие целые вне диапазона PHP integer — строки; integer-like keys PHP array могут приводиться к int |
 | Буфер тела | Конечный configurable лимит; 8 MiB пока предложено, окончательное значение закрепляется в T02 |
 | Body limit | Фактический raw body проверяется до endpoint даже при наличии Content-Length |
@@ -49,6 +50,7 @@
 | Возможность | Целевой этап |
 | --- | --- |
 | Routing, Context, Request, Response, error handling | MVP |
+| `set/get/has` и `extension(Type::class)`, constructor DI готовых callables | MVP; request state создаётся приложением, PSR-11 контейнер необязателен и используется только в bootstrap |
 | FPM/SAPI, CLI server, in-memory request | MVP |
 | Validator, body limit, cookies, CORS, secure headers, logger/request ID | MVP; точные factories/options уточняются |
 | PSR-15 RequestHandlerInterface у App | MVP |
@@ -61,6 +63,8 @@
 В этой таблице «MVP» означает запланированный объём, а не уже реализованную функцию. Пользовательские middleware можно описывать на общем callable API; копировать названия JS imports как готовые PHP-функции нельзя.
 
 PSR-15 bridge гарантирует заявленный профиль request/response обработки, а не работу любого PHP middleware без условий. Laravel/Symfony-native и double-pass API не адаптируются автоматически. Повторные downstream вызовы не поддерживаются; перехват endpoint exceptions выполняется через Hono onError. URI/method rewrite размещается перед App во внешнем PSR pipeline, а не внутри уже выбранного маршрута. Body для bridge может буферизоваться с лимитом. Совместимость конкретных версий сторонних пакетов должна подтверждаться на PHP 8.5; [подробности подключения](middleware.md#psr-15-middleware).
+
+PSR attributes и Context variables не синхронизируются автоматически: mapper после PSR middleware читает forwarded request и регистрирует typed extension явно. Context variables не откатываются при восстановлении upstream request view. В MVP нет `App::container()`, class-string resolver, `contextFactory/stateFactory`, `__get`, macros или гарантий subclassing Context. [Контракт расширения и lifecycle](context-extensions.md).
 
 ## Принцип расширения
 

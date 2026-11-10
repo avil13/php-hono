@@ -9,11 +9,12 @@
 | Область | MVP / 0.1 | Дополнение до 1.0 | За пределами 1.0 |
 | --- | --- | --- | --- |
 | HTTP | PSR-7, Context, Request, ответы, errors/404/HEAD, обязательный PSR-15 middleware bridge | Стабилизация интеграций | Полный Fetch API |
+| Расширения и зависимости | Объекты состояния через Context::extension(), constructor injection, внешний PSR-11 при сборке приложения | Проверка lifecycle в worker | Встроенный контейнер, autowiring/resolver, фабрика или наследование Context как публичный extension API |
 | Routing | Методы, параметры, terminal wildcard, optional terminal param, ограниченный regex, route/basePath | Измерение и оптимизация без изменения профиля | Полный набор шаблонов Hono, router presets |
 | Body | JSON/text/urlencoded; multipart из PSR/SAPI с ограничениями | Укрепление текущего контракта | Полный raw multipart parser и `dot:true` |
 | Middleware | Validator, bodyLimit, cookies, CORS, secureHeaders, logger, requestId | Basic/Bearer, CSRF, ETag, compress, 405, trailing slash | JWT/JWK, IP restriction, cache, timeout, context-storage и остальные |
 | Runtime | PHP-FPM, CLI server, запрос в памяти | FrankenPHP worker, streaming/SSE | RoadRunner, Swoole, ReactPHP, serverless |
-| DX | Composer, PHPDoc, examples, PHPUnit, PHPStan | Стабильный API и migration guide | TS RPC, SSG, OpenAPI/client generator |
+| DX | Composer, PHPDoc, examples, PHPUnit, PHPStan max, Mago format/lint со строгими правилами, read-only pre-commit и CI | Стабильный API и migration guide | TS RPC, SSG, OpenAPI/client generator |
 
 ## Проект публичного API
 
@@ -97,12 +98,19 @@ $response = $app->request('/users/42');
 
 - Новый Context на каждый запрос: req, env, переменные `set/get`, текущий Response, error, prepared headers/status. Не хранить его в static/global.
 - `set(string $key, mixed $value): void`, `get(string $key): mixed`; отсутствующий ключ — null. Для различения отсутствующего и явно null предусмотрен `has(string $key): bool`.
+- `extension(string $type): object` — типизированное чтение уже установленного объекта из того же хранилища variables. PHPDoc: `@template T of object`, `@param class-string<T> $type`, `@return T`. Запись: `set(AuthContext::class, $object)`; для интерфейса — явно `set(AuthState::class, $implementation)`. Ключ сравнивается точно по строке, без нормализации регистра и поиска по совместимым типам; значение должно удовлетворять `instanceof $type`.
+- Отсутствующий ключ, null, скаляр или объект другого типа в `extension()` вызывают `\LogicException`; внутри pipeline ошибка проходит через onError, а из самого onError — через существующий fallback 500. Вне dispatch исключение получает вызывающий код. `get/has` сохраняют прежнее поведение. `extension()` не создаёт и не клонирует объект, не выполняет autowiring, не кеширует результат отдельно: последующий `set()` под тем же ключом виден при следующем чтении. Уже полученные ссылки на прежний объект не изменяются.
+- Расширение Context выполняется композицией: приложение или middleware устанавливает собственные объекты состояния до использующего их handler. Объекты пользователя/tenant и другие mutable request data создаются заново на каждый запрос; запись одного общего объекта в разные Context сама по себе не даёт изоляции. Разные расширения используют собственные class/interface keys; framework не требует общего подкласса Context.
 - `text/json/html/body($value, ?int $status = null, array $headers = [])` создают ResponseInterface; null использует prepared status, а при его отсутствии 200. Также доступны `redirect(string $url, int $status = 302)`, `notFound()`, `status(int $code)`, `header(string $name, string\|array\|null $value, bool $append = false)`, `response(): ?ResponseInterface`, `setResponse(ResponseInterface): void`.
 - `status()` задаёт статус по умолчанию только для следующих фабрик; явно переданный статус фабрики имеет приоритет. `header(..., null)` удаляет header, append добавляет значение. Для изменения статуса готового ответа использовать PSR `withStatus()` и `setResponse()`.
 - При первой установке Response prepared headers применяются один раз: для обычных headers явно заданное значение Response имеет приоритет, а Set-Cookie объединяется в порядке prepared → Response без склеивания строк. Затем prepared queue очищается. После финализации `header()` меняет текущий Response, включая удаление; старый prepared header не должен воскресать.
 - При `setResponse()` отсутствующие в новом ответе headers наследуются из текущего, кроме Content-Type, Content-Length, Content-Encoding, Transfer-Encoding, ETag и Last-Modified: они относятся к заменённому телу. Явные новые headers имеют приоритет. Для Set-Cookie явный список нового ответа заменяет весь старый список, при отсутствии наследуется старый; повторное setResponse одного ответа ничего не дублирует. Это выбранная PHP-политика с отдельными difference fixtures, а не побайтовая копия setter Hono.
 - Content-Type: text — `text/plain; charset=UTF-8`, html — `text/html; charset=UTF-8`, json — `application/json`. `html()` принимает готовую строку и не экранирует её автоматически; отдельный `escapeHtml()` предназначен для вставляемых значений.
 - Ответы 204/205/304 не содержат body. Заголовки и URI проходят проверку на недопустимые control characters; не полагаться на `header()` PHP как на валидатор.
+
+Зависимости handlers и middleware передаются через конструкторы или явно захваченные сервисы. Регистрация принимает готовые callable objects. Приложение может собрать их через внешний PSR-11 container в bootstrap; Context не предоставляет container/service locator. Автоматический resolver строковых имён классов, autowiring, `contextFactory/stateFactory` и динамические методы Context не входят в MVP. Прикладные request-scoped factories вызываются внутри обработки запроса; их cleanup имеет явного владельца.
+
+PSR-15 attributes и Context variables — отдельные хранилища. Прикладной mapper, зарегистрированный после соответствующего PSR middleware, читает текущий `$c->req->raw()->getAttribute(...)`, проверяет тип и явно устанавливает extension. При отсутствии/удалении атрибута он сначала очищает прежнее значение через `set($type, null)`, затем продолжает обработку либо завершает запрос согласно политике приложения; ранний ответ не должен оставлять прежний AuthContext доступным upstream. Автоматического копирования в любую сторону нет. При восстановлении upstream raw request после downstream Context variables этого запроса не откатываются; mapper должен явно выбрать источник истины. Данные, нужные стороннему PSR middleware, передаются в PSR attributes на соответствующей стороне границы, а не через скрытую синхронизацию Context.
 
 ## C-05. Ошибки, 404, HEAD
 
@@ -125,7 +133,7 @@ $response = $app->request('/users/42');
 - Ядро не читает superglobals и не вызывает `echo`, `header()`, `exit()`. SAPI adapter строит ServerRequest, вызывает приложение и отправляет Response.
 - Proxy headers не доверяются автоматически. Scheme/host/IP берутся из transport config; доверенные proxy настраиваются явно на уровне adapter/server.
 - Отправлять несколько Set-Cookie отдельными строками. HEAD и bodyless statuses не отправляют bytes. Закрытие/rewind streams имеет явного владельца.
-- Повторные вызовы одного App не переносят Context, env, validation, error, cookies или body cache. Routes после freeze разделяются безопасно; mutable state пользовательских closures — ответственность приложения и отдельно описывается.
+- Повторные вызовы одного App не переносят Context, extensions/variables, env, validation, error, cookies или body cache. Routes после freeze разделяются безопасно; mutable state пользовательских closures и сервисов — ответственность приложения и отдельно описывается. Общий handler не сохраняет текущий Context. Пользователь, tenant, транзакция и Unit of Work имеют lifecycle запроса; безопасные общие сервисы могут жить вместе с App. Освобождение ресурсов и rollback задаются явно, в том числе при short-circuit и обработанной onError ошибке: возврат из `$next()` сам по себе не означает успех операции.
 - В 1.0 streaming producer запускается emitter после headers. Ошибку после начала отправки нельзя превратить в новый 500: её логируют, поток закрывают. Отключение клиента прекращает producer по возможности runtime; блокирующий I/O не получает обещания мгновенной отмены.
 
 ## Явные различия и исключения
@@ -133,6 +141,8 @@ $response = $app->request('/users/42');
 Все различия перечисляются в будущем `docs/compatibility.md` и имеют собственные PHP-tests: PSR вместо Fetch; sync вместо Promise; обязательные paths; ограниченная route grammar и path length; 400 для malformed URI; единый 500 для забывшего Response handler; правила headers при замене Response; PHP JSON types/числа; SAPI multipart normalization; конечный body buffer и проверка фактической длины даже при наличии Content-Length; отсутствие browser/edge bindings и TypeScript inference. Integer-like ключи PHP array могут приводиться к int — точное JS object key typing не обещается. JSX/WebSocket намеренно отсутствуют по требованию пользователя.
 
 Неподдерживаемые параметры API должны отклоняться явно. Не добавлять заглушки, которые возвращают успешный результат без выполнения обещанной функции.
+
+Типизированный `Context::extension()` — PHP-specific дополнение к `set/get`, не перенос TypeScript generic API. Для него нужны собственные C-04 PHP contract tests; JS upstream harness не должен имитировать отсутствующий метод. Использование внешнего DI-контейнера не означает совместимость lifecycle любого пакета с worker.
 
 ## Приёмка
 

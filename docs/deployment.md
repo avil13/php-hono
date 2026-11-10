@@ -69,6 +69,8 @@ php -S 127.0.0.1:8080 -t public public/index.php
 - Не доверяйте `X-Forwarded-*` автоматически. Trusted proxy, внешний scheme/host и адрес клиента настраиваются на стороне adapter/server.
 - Новый Context не очищает singleton или изменяемые данные, захваченные closure. Учитывайте это при повторных вызовах App.
 
+Собирайте готовые handlers и middleware через constructor DI до первого dispatch. PSR-11 контейнер, если он нужен приложению, используется в bootstrap; php-hono не получает container и не разрешает class strings. Request-scoped сервисы создаются factory внутри запроса и записываются через `set(Type::class, $object)` для чтения `extension(Type::class)`. Factory не должна кешировать request state. Cleanup и rollback задаются явно с учётом того, что `onError` может преобразовать исключение в Response до возврата `$next()`. [Руководство по lifecycle и DI](context-extensions.md).
+
 ## Версия 1.0: worker и streaming
 
 FrankenPHP worker mode запланирован отдельным адаптером: приложение загружается один раз, request state создаётся заново на каждом запросе. Конкретные startup command, версия runtime и cleanup contract появятся после T29. Само наличие PSR-15 handler не означает, что worker integration уже готова.
