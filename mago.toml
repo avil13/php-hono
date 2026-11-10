@@ -1,0 +1,25 @@
+#:schema https://mago.carthage.software/1.59.0/schema.json
+version = "1.59.0"
+version-drift-fail-level = "patch"
+php-version = "8.5"
+
+[source]
+paths = ["src", "tests", "examples", "benchmarks", "tools"]
+includes = ["vendor"]
+excludes = ["build", "coverage", "var"]
+
+[source.glob]
+literal-separator = true
+
+[parser]
+enable-short-tags = false
+
+[linter]
+minimum-fail-level = "warning"
+
+[linter.rules]
+strict-types = { enabled = true, level = "error" }
+strict-behavior = { enabled = true, level = "error" }
+no-eval = { enabled = true, level = "error" }
+no-global = { enabled = true, level = "error" }
+no-variable-variable = { enabled = true, level = "error" }

@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, dom, xml, fileinfo, zlib
+          coverage: none
+          tools: composer:v2
+      - run: composer validate --strict
+      - run: composer install --no-interaction --prefer-dist
+      - run: composer audit
+      - run: composer tools:prepare
+      - run: composer check
+      - run: php benchmarks/stream-memory.php
+      - run: php tools/release/check-package.php
+  runtime:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [fpm, worker]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, dom, xml, fileinfo, zlib
+          coverage: none
+          tools: composer:v2
+      - run: composer install --no-interaction --prefer-dist
+      - name: Prepare pinned FrankenPHP
+        if: matrix.runtime == 'worker'
+        run: |
+          mkdir -p var/bin
+          curl -fL --retry 3 https://github.com/php/frankenphp/releases/download/v1.13.5/frankenphp-linux-x86_64 -o var/bin/frankenphp
+          echo 'cdb85dd2fd6c0468f53079e845c81621563024772ac400e5d1c17d0751324b71  var/bin/frankenphp' | sha256sum --check
+          chmod +x var/bin/frankenphp
+      - name: FPM HTTP contract
+        if: matrix.runtime == 'fpm'
+        run: tools/runtime/test-fpm.sh
+      - name: Worker HTTP contract
+        if: matrix.runtime == 'worker'
+        run: FRANKENPHP_BINARY="$PWD/var/bin/frankenphp" tools/runtime/test-worker.sh
+      - name: Worker single-boot lifecycle soak
+        if: matrix.runtime == 'worker'
+        env:
+          PHP_HONO_TEST_PROBES: '5000'
+          PHP_HONO_TEST_MAX_REQUESTS: '25000'
+          PHP_HONO_TEST_SINGLE_BOOT: '1'
+          PHP_HONO_TEST_RESULT: var/runtime-soak-result.json
+        run: FRANKENPHP_BINARY="$PWD/var/bin/frankenphp" tools/runtime/test-worker.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: runtime-${{ matrix.runtime }}
+          path: |
+            var/runtime-*.log
+            var/runtime-*-result.json

@@ -1,6 +1,6 @@
 # Расширение Context и зависимости
 
-Проектная документация согласованного API MVP для PHP 8.5+. Реализации пока нет; namespace `PhpHono` предварительный. [Оглавление](README.md).
+API php-hono 1.0 для PHP 8.5. [Оглавление](README.md).
 
 Состояние текущего запроса хранится в обычных объектах приложения. Middleware создаёт объект, записывает его в Context через `set()`, а handler получает его с проверкой типа через `extension()`. Это композиция: наследовать Context для добавления собственных полей не требуется.
 
@@ -39,7 +39,7 @@ Middleware-поставщик должен выполняться до handler-�
 
 ## Контракт extension
 
-Целевая сигнатура метода Context с PHPDoc:
+Сигнатура реализованного метода [Context::extension](../src/Context.php) с PHPDoc:
 
 ```text
 /**
@@ -136,7 +136,7 @@ $app->get('/api/me', new WhoAmI('Example API'));
 
 Это альтернативная регистрация к предыдущему блоку. Контейнер используется при bootstrap и не передаётся в Context для произвольного поиска сервисов во время запроса. Он возвращает готовый callable; `use/get` не разрешают class strings через контейнер автоматически.
 
-В MVP не входят `App::container()`, resolver class strings, `contextFactory/stateFactory`, `__get`, macros и гарантия поддержки пользовательского наследника Context. Используйте composition, constructor DI и явные вызовы `set/extension`.
+`Context` — final-класс. В API нет `App::container()`, resolver class strings, `contextFactory/stateFactory`, `__get` и macros. Используйте composition, constructor DI и явные вызовы `set/extension`.
 
 ## Lifecycle и освобождение ресурсов
 
@@ -193,5 +193,17 @@ $psrApp->get('/api/me', new WhoAmI('Example API'));
 Пример предполагает договорённость приложения: `$authentication` передаёт объект `AuthContext` как PSR attribute под этим именем. Если библиотека использует другой ключ или тип, mapper преобразует его явно. При отсутствии или удалении attribute сначала сбросьте прежнее значение через `set(AuthContext::class, null)`, затем сообщите ошибку контракта либо верните 401 для обычного неавторизованного запроса. Очистка обязательна в обеих ветках: ранний 401 не должен оставлять прежнюю identity доступной upstream middleware. Нельзя молча сохранять ранее записанный AuthContext при повторном mapper в одном запросе. Это альтернативный путь к `AttachAuth`, а не второй обязательный auth middleware.
 
 При выходе из bridge upstream middleware снова видит свой raw request. Variables Context остаются общими для этого запроса: значение, записанное mapper-ом, не откатывается вместе с request view. Порядок PSR middleware → mapper → потребитель обязателен. При short-circuit до mapper он не выполняется, а ранее установленные variables сохраняются; ранний ответ сам по себе не очищает Context.
+
+## Запускаемый пример
+
+[examples/context-di.php](../examples/context-di.php) возвращает готовый `Hono`: `AttachTenant` получает request factory через конструктор, `HelloTenant` получает конфигурацию через конструктор, а явный mapper переносит `RequestMetadata` из PSR attribute в extension. Классы примера находятся в [examples/ContextDi](../examples/ContextDi); внешний контейнер не нужен. Tenant задан доверенной конфигурацией bootstrap, а request ID создаётся заново для каждого вызова.
+
+Из корня проекта после установки Composer dependencies:
+
+```sh
+php -r '$app = require "examples/context-di.php"; echo $app->request("/whoami")->getBody();'
+```
+
+Ответ содержит `message: "Hello, tenant example"` и случайный `requestId`. При втором вызове того же App идентификатор будет другим. Для HTTP-запуска используйте возвращаемое приложение с [SAPI adapter](deployment.md).
 
 Далее: [middleware](middleware.md), [Context и ответы](context-response.md), [тестирование](testing.md), [запуск](deployment.md).

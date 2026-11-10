@@ -1,6 +1,6 @@
 # Middleware
 
-Это проектная документация API MVP для PHP 8.5+. Реализация ещё не готова; namespace `PhpHono` предварительный. [Оглавление документации](README.md).
+Middleware php-hono 1.0 для PHP 8.5+. [Оглавление документации](README.md).
 
 Middleware выполняет общую обработку запроса: может проверить данные, передать управление следующему обработчику, изменить ответ или завершить запрос раньше.
 
@@ -127,34 +127,44 @@ Downstream exception обрабатывается через `onError` до во
 
 Не забывайте `return` перед фабрикой ответа. `void` подходит middleware, который вызывает `$next()` и меняет Context. Если middleware может вернуть ранний Response, укажите подходящий return type, например `?ResponseInterface`, и верните `null` в ветке продолжения, как выше.
 
-## Планируемые встроенные возможности
+## Встроенные middleware
 
-Названия ниже обозначают возможности из спецификации. Конкретные namespace, функции подключения и параметры встроенных middleware пока не зафиксированы; примеры с выдуманными фабриками здесь не приводятся.
+Middleware — готовые invokable-объекты из `PhpHono\Middleware`. Их можно передать в `use()` или в список handlers маршрута.
 
-| Возможность | Этап | Как использовать по назначению |
-| --- | --- | --- |
-| Validator | MVP | Проверять `json/form/query/param/header/cookie`; callback возвращает данные либо ранний Response; результат читать через `req->valid($target)` |
-| Body limit | MVP | Ставить до чтения тела; слишком большое доступное raw body отклоняется до endpoint, даже если endpoint его не читает |
-| CORS | MVP | Настроить разрешённые origins/methods/headers, credentials и preflight; wildcard origin с credentials недопустим |
-| Secure headers | MVP | Применять общие HTTP headers; CSP задавать явно под своё приложение |
-| Request ID | MVP | Получать проверенный либо сгенерированный id для корреляции запроса и логов |
-| Logger | MVP | Логировать метод, путь, статус, время и id; по умолчанию без body, query values, credentials и cookies |
-| Cookie helpers | MVP | Читать, устанавливать и удалять cookies; это helpers, а не обязательный middleware |
-| Basic/Bearer authentication | 1.0 | Подключать проверку credentials/token до обработчиков с побочными действиями |
-| CSRF | 1.0 | Защищать unsafe browser requests согласно политике приложения; CORS не заменяет CSRF |
-| ETag | 1.0 | Обрабатывать условные запросы к ответам с конечным телом |
-| Compression | 1.0 | Согласовывать gzip через Accept-Encoding; требуются ext-zlib и корректный порядок с ETag |
-| Method Not Allowed | 1.0 | Явно включать 405/Allow вместо стандартного 404 при несовпавшем методе |
-| Trailing slash | 1.0 | Явно включать redirect для выбранной slash policy |
-| Static files | 1.0 | Раздавать файлы только из заданного root |
+```php
+use PhpHono\Middleware\BodyLimit;
+use PhpHono\Middleware\Cors;
+use PhpHono\Middleware\SecureHeaders;
+
+$app->use('*', new SecureHeaders());
+$app->use('/api/*', new Cors(origin: 'https://app.example.com'));
+$app->use('/api/*', new BodyLimit(maxBytes: 1_048_576));
+```
+
+Поставьте эти вызовы до регистрации endpoints. CORS должен быть внешним по отношению к auth/CSRF, если preflight должен завершаться до проверки credentials.
+
+| Возможность | Реализованный API |
+| --- | --- |
+| Validator | `new Validator($target, $validate)`; результат через `req->valid()` |
+| Body limit | `new BodyLimit($maxBytes)` до чтения тела |
+| CORS, secure headers | `new Cors(...)`, `new SecureHeaders(...)` |
+| Request ID, logger | `new RequestId(...)`, `new Logger(...)` |
+| Cookies | `PhpHono\Helper\Cookie`; helper без обязательного middleware |
+| Basic/Bearer auth | `BasicAuth::credentials(...)`, `BearerAuth::token(...)` или callback-конструкторы |
+| CSRF | `new Csrf(origins: [...])` |
+| ETag и gzip | `new ETag()`, затем `new Compress()` |
+| 405 и slash policy | `new MethodNotAllowed($app)`, `new TrailingSlash(...)` |
+| Static files | `new StaticFiles($root, $prefix)` |
+
+Сигнатуры, defaults и примеры базовых возможностей находятся в [руководстве по встроенным middleware](builtin-middleware.md), auth/CSRF/ETag/gzip/files — в [HTTP middleware 1.0](advanced-middleware.md).
 
 Для multipart часть обработки уже выполнена PHP до middleware. Поэтому body limit фреймворка не заменяет `post_max_size`, upload limits и лимиты web server. Детали — в [Request](request.md) и [запуске](deployment.md).
 
 ## PSR-15 middleware
 
-**Готовые сторонние PSR-15 middleware — обязательная возможность MVP.** Проектный API bridge: `PhpHono\Middleware\Psr15::wrap(MiddlewareInterface $middleware): callable`. Он позволяет использовать исходный объект из Composer-пакета без переписывания `process()` под Context.
+**Готовые сторонние PSR-15 middleware поддерживаются через bridge.** API: `PhpHono\Middleware\Psr15::wrap(MiddlewareInterface $middleware): callable`. Он позволяет использовать исходный объект из Composer-пакета без переписывания `process()` под Context.
 
-Например, [middlewares/response-time](https://github.com/middlewares/response-time) добавляет время обработки в response header. Целевое подключение после реализации bridge и установки пакета:
+Например, [middlewares/response-time](https://github.com/middlewares/response-time) добавляет время обработки в response header. После установки Composer-пакета подключите его объект:
 
 ```php
 use Middlewares\ResponseTime;
@@ -180,6 +190,6 @@ PSR attributes не превращаются в Context extensions автома�
 - Исключения endpoint уже преобразованы Hono `onError` в Response. Сторонний exception handler не заменяет этот механизм; внешний pipeline сам обрабатывает ошибки своих компонентов вне App.
 - Middleware Laravel/Symfony с собственными интерфейсами и старый double-pass API не становятся PSR-15-совместимыми автоматически.
 
-Приёмка T21 требует тестов реальных [middlewares/uuid](https://github.com/middlewares/uuid) и [middlewares/response-time](https://github.com/middlewares/response-time), а также отдельных fixtures для body, attributes, ошибок и смешанного порядка. Версии пакетов будут закреплены и проверены на PHP 8.5 при реализации; приведённый пример пока проектный.
+В `composer.lock` закреплены тестовые версии [middlewares/uuid](https://github.com/middlewares/uuid) 2.1.0 и [middlewares/response-time](https://github.com/middlewares/response-time) 2.1.0. Интеграционные тесты используют их реальные классы; отдельные contract tests проверяют body, attributes, ошибки и смешанный порядок. Эти пакеты не нужны ядру и не добавляются в production runtime автоматически.
 
 Далее: [Request](request.md), [обработка ошибок](errors.md), [тестирование](testing.md).

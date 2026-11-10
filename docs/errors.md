@@ -1,6 +1,6 @@
 # Ошибки и ответы 404
 
-Проектная документация API MVP для PHP 8.5+. Реализации пока нет; namespace `PhpHono` предварительный. [Оглавление](README.md).
+API 1.0 для PHP 8.5, namespace `PhpHono`. [Оглавление](README.md).
 
 Ожидаемую ошибку приложения можно выразить обычным HTTP-ответом. Необработанный `Throwable` передаётся в `onError`. По умолчанию framework возвращает для неизвестной ошибки 500 с текстом `Internal Server Error`, не раскрывая клиенту stack trace.
 
@@ -41,7 +41,7 @@ $app->notFound(fn (Context $c): ResponseInterface =>
 $app->get('/removed-page', fn (Context $c): ResponseInterface => $c->notFound());
 ```
 
-Несовпадение HTTP-метода по умолчанию тоже даёт 404. Автоматический 405 не входит в ядро; отдельный opt-in middleware запланирован для 1.0. OPTIONS обрабатывается явно зарегистрированным handler либо CORS middleware.
+Несовпадение HTTP-метода по умолчанию тоже даёт 404. Автоматический 405 не входит в ядро; доступен opt-in middleware `new \PhpHono\Middleware\MethodNotAllowed($app)`. OPTIONS обрабатывается явно зарегистрированным handler либо CORS middleware.
 
 После `route('/api', $child)` применяется notFound корневого приложения; дочерний notFound не импортируется.
 
@@ -56,7 +56,7 @@ $app->onError(function (\Throwable $error, Context $c): ResponseInterface {
 });
 ```
 
-Этот минимальный пример намеренно переводит все поступившие исключения в 500. Пользовательский `onError` заменяет стандартную политику; если API должен сохранять HTTP-статусы parser/HttpException, такую обработку нужно добавить после закрепления публичного API исключения. Пока оставляйте стандартный handler для этих статусов. Пример не предполагает вымышленных методов вроде `getStatus()`.
+Этот минимальный пример намеренно переводит все поступившие исключения в 500. Пользовательский `onError` заменяет стандартную политику; если API должен сохранять HTTP-статусы parser/HttpException, проверяйте `$error instanceof \PhpHono\HttpException` и используйте его `$status` и `$response`. Либо оставьте стандартный handler для этих статусов.
 
 Не возвращайте клиенту `$error->getMessage()` или trace автоматически: они могут содержать внутренние детали. Выберите безопасное публичное сообщение, а диагностику направляйте в серверный журнал. Пример логирует только класс ошибки.
 
@@ -64,9 +64,13 @@ $app->onError(function (\Throwable $error, Context $c): ResponseInterface {
 
 ## HttpException
 
-Запланированный `PhpHono\HttpException` хранит HTTP status, message, необязательный готовый Response и предыдущее исключение. Стандартный обработчик использует этот HTTP-ответ; статус исключения имеет приоритет над статусом вложенного Response.
+`PhpHono\HttpException` хранит HTTP status, message, необязательный готовый Response и предыдущее исключение. Стандартный обработчик использует этот HTTP-ответ; статус исключения имеет приоритет над статусом вложенного Response.
 
-Конструктор и accessors ещё не зафиксированы. Поэтому примеры пользовательской документации возвращают `$c->json(..., $status)` или `$c->text(..., $status)` напрямую. Это уже определённый способ выразить ожидаемую HTTP-ошибку без догадок об API исключения.
+```php
+throw new \PhpHono\HttpException(409, 'Conflict');
+```
+
+Сигнатура: `__construct(int $status, string $message = '', ?ResponseInterface $response = null, ?Throwable $previous = null)`. Публичные readonly свойства — `$status` и `$response`; сообщение доступно через `getMessage()`. Статус должен быть 400–599. Передавайте в message только предназначенный клиенту текст.
 
 ## Ошибки middleware
 
@@ -92,7 +96,7 @@ $app->use('*', function (Context $c, callable $next): void {
 | 400 | Некорректный JSON или malformed percent encoding/UTF-8 в URI |
 | 404 | Нет подходящего маршрута/метода; явный `$c->notFound()` |
 | 413 | Превышен доступный для проверки предел тела или transport сообщил соответствующую ошибку |
-| 414 | Превышен предел длины path; проектное значение по умолчанию — 8192 bytes |
+| 414 | Превышен предел длины path; значение по умолчанию — 8192 bytes |
 | 415 | Multipart поступил без подтверждённого разбора адаптером |
 | 500 | Необработанный Throwable, ошибка middleware/финализации либо сбой пользовательского onError |
 
@@ -100,6 +104,6 @@ HEAD проходит через GET chain и обработку ошибок, �
 
 ## После начала отправки ответа
 
-HTTP streaming/SSE запланированы на 1.0. После отправки headers нельзя заменить статус и тело новым error response. Ошибку producer логируют и закрывают поток. Это отличается от обычной обработки handler до отправки ответа; подробности и статус поддержки — в [запуске приложения](deployment.md).
+HTTP streaming/SSE реализованы. После отправки headers нельзя заменить статус и тело новым error response. Ошибку producer логируют и закрывают поток. Это отличается от обычной обработки handler до отправки ответа; подробности и статус поддержки — в [запуске приложения](deployment.md).
 
 Далее: [Context и ответы](context-response.md), [middleware](middleware.md), [тестирование](testing.md).

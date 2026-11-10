@@ -1,0 +1,21 @@
+{
+  "node": "v26.11.1",
+  "platform": "darwin",
+  "arch": "arm64",
+  "requests": 1000,
+  "rounds": 3,
+  "results": [
+    {
+      "concurrency": 1,
+      "median_rps": 578.9917336626446,
+      "min_rps": 557.5463575278183,
+      "max_rps": 604.4203374750733
+    },
+    {
+      "concurrency": 8,
+      "median_rps": 2515.3557184363576,
+      "min_rps": 2099.5314370715337,
+      "max_rps": 2561.834138798323
+    }
+  ]
+}

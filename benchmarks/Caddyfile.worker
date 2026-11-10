@@ -1,0 +1,18 @@
+{
+    auto_https off
+    admin off
+    persist_config off
+    frankenphp {
+        num_threads 2
+        worker {
+            file {$PHP_HONO_BENCH_ROOT}/benchmarks/worker.php
+            num 1
+        }
+    }
+}
+http://127.0.0.1:18088 {
+    bind 127.0.0.1
+    root * {$PHP_HONO_BENCH_ROOT}/benchmarks
+    rewrite * /worker.php
+    php
+}

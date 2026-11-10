@@ -1,0 +1,16 @@
+services:
+  fpm:
+    image: php:8.5-fpm-alpine@sha256:951fb5b1780219b81d5daffa4cebef8e0077c537f3893d9790a5dfcd66ca334d
+    volumes:
+      - ../..:/app:ro
+      - ../../var/runtime-fpm:/state
+      - ./php.ini:/usr/local/etc/php/conf.d/99-php-hono-test.ini:ro
+  web:
+    image: caddy:2.11.7-alpine@sha256:eb4d35b7452d1ab6171fbdbe8d9275b2301dad6dad92115d91e19fb9b24d510f
+    ports:
+      - "127.0.0.1:${PHP_HONO_FPM_PORT:-18085}:8080"
+    volumes:
+      - ../..:/app:ro
+      - ./Caddyfile.fpm:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - fpm

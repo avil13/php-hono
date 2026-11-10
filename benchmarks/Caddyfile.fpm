@@ -1,0 +1,10 @@
+{
+    auto_https off
+    admin off
+}
+:8080 {
+    root * /app/benchmarks
+    php_fastcgi fpm:9000 {
+        try_files public.php
+    }
+}

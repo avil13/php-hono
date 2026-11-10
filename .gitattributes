@@ -1,0 +1,20 @@
+* text=auto eol=lf
+*.php text eol=lf
+/.github export-ignore
+/.githooks export-ignore
+/benchmarks export-ignore
+/spec export-ignore
+/tests export-ignore
+/tools export-ignore
+/mago.toml export-ignore
+/phpstan.neon.dist export-ignore
+/phpunit.xml export-ignore
+/vendor export-ignore
+/var export-ignore
+/build export-ignore
+/coverage export-ignore
+/.gitignore export-ignore
+/.gitattributes export-ignore
+/composer.lock export-ignore
+/AGENTS.md export-ignore
+/.DS_Store export-ignore

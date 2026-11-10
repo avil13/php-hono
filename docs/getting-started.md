@@ -1,12 +1,34 @@
 # Начало работы
 
-[Оглавление](README.md) · Проектное руководство для MVP; реализации пакета пока нет.
+[Оглавление](README.md) · Реализованный API 1.0, PHP 8.5.
 
 ## Требования и установка
 
-Нужны PHP **8.5+** и Composer. HTTP-объекты основаны на PSR-7/17; реализацией по умолчанию запланирован `nyholm/psr7`. Для тестов приложения используется PHPUnit. Node.js не нужен пользователю PHP-фреймворка.
+Нужны PHP **8.5+** и Composer. HTTP-объекты основаны на PSR-7/17; реализацией по умолчанию служит `nyholm/psr7`. Для тестов приложения используется PHPUnit. Node.js не нужен пользователю PHP-фреймворка.
 
-Имя Composer-пакета ещё не выбрано, а `composer.json` отсутствует. Поэтому команды установки php-hono сейчас нет. После выпуска пакета здесь появится точная команда `composer require` с опубликованным именем. Следующие примеры предполагают, что пакет уже подключён и существует `vendor/autoload.php`.
+Пакет называется `php-hono/php-hono`; внешняя публикация пока не выполнялась. Из checkout репозитория выполните:
+
+```sh
+composer install
+composer tools:prepare
+composer check
+php -S 127.0.0.1:8080 -t examples/public examples/public/index.php
+```
+
+Для отдельного приложения до публикации подключите локальный checkout через path repository:
+
+```json
+{
+  "repositories": [{
+    "type": "path",
+    "url": "/absolute/path/to/php-hono",
+    "options": {"versions": {"php-hono/php-hono": "1.0.0"}}
+  }],
+  "require": {"php": "^8.5", "php-hono/php-hono": "^1.0"}
+}
+```
+
+В каталоге приложения запустите `composer install`. Указанная path-version нужна локальному Composer и не означает опубликованный release. Runtime dependencies включают Nyholm и PSR interfaces; Mago/PHPUnit/PHPStan являются dev tools самого фреймворка.
 
 ## Структура небольшого приложения
 
@@ -20,11 +42,20 @@ my-api/
   vendor/
 ```
 
-`app.php` регистрирует маршруты и возвращает приложение. `public/index.php` соединяет его с сервером. Такое разделение позволяет использовать те же маршруты в HTTP-запросах и тестах. Содержимое front controller будет зависеть от окончательного [SAPI-адаптера](deployment.md).
+`app.php` регистрирует маршруты и возвращает приложение. `public/index.php` соединяет его с сервером. Такое разделение позволяет использовать те же маршруты в HTTP-запросах и тестах. Front controller:
+
+```php
+<?php
+declare(strict_types=1);
+$app = require dirname(__DIR__) . '/app.php';
+\PhpHono\Adapter\Sapi::run($app);
+```
+
+Конфигурация FPM и worker описана в [deployment](deployment.md).
 
 ## Первое приложение
 
-Целевое содержимое `app.php`:
+Содержимое `app.php`:
 
 ```php
 <?php
@@ -60,7 +91,7 @@ JSON-объект на входе декодируется в `stdClass`; JSON-�
 
 ## Проверка без сервера
 
-Пример `check.php` рядом с `app.php`, который можно будет выполнить после реализации библиотеки:
+Пример `check.php` рядом с `app.php`:
 
 ```php
 <?php

@@ -1,0 +1,95 @@
+{
+  "date": "2026-11-10",
+  "php": "8.5.12",
+  "composer": "2.11.2",
+  "mago": "1.59.0",
+  "phpstan_level": "max",
+  "phpunit": {
+    "version": "12.5.43",
+    "tests": 228,
+    "assertions": 2400
+  },
+  "composer_validate": "passed",
+  "composer_audit": "no advisories",
+  "format_lint_analyse": "passed",
+  "source_sha256": "26e3fe13a7e162e4c24326fbc33b6288de42a2372c5bfb3b468e212cf9fe9108",
+  "source_hash_algorithm": "sha256 of sorted src/**/*.php path + NUL + file bytes",
+  "runtime": {
+    "fpm": {
+      "url": "http://127.0.0.1:18085",
+      "worker": false,
+      "probes": 5,
+      "boots": 5,
+      "http_requests": 31,
+      "single_boot": false,
+      "max_requests": null,
+      "memory_min": 476584,
+      "memory_max": 477408,
+      "memory_first": 477408,
+      "memory_last": 476584,
+      "retained_objects": 0,
+      "typed_scopes": true,
+      "psr_identity_mapper": true,
+      "validation_isolation": true,
+      "status": "passed"
+    },
+    "worker": {
+      "url": "http://127.0.0.1:18086",
+      "worker": true,
+      "probes": 100,
+      "boots": 19,
+      "http_requests": 379,
+      "single_boot": false,
+      "max_requests": 20,
+      "memory_min": 483376,
+      "memory_max": 771624,
+      "memory_first": 771624,
+      "memory_last": 483600,
+      "retained_objects": 0,
+      "typed_scopes": true,
+      "psr_identity_mapper": true,
+      "validation_isolation": true,
+      "status": "passed"
+    },
+    "soak": {
+      "url": "http://127.0.0.1:18086",
+      "worker": true,
+      "probes": 5000,
+      "boots": 1,
+      "http_requests": 18346,
+      "single_boot": true,
+      "max_requests": 25000,
+      "memory_min": 771624,
+      "memory_max": 771696,
+      "memory_first": 771624,
+      "memory_last": 771696,
+      "retained_objects": 0,
+      "typed_scopes": true,
+      "psr_identity_mapper": true,
+      "validation_isolation": true,
+      "status": "passed"
+    }
+  },
+  "remote_ci_run": false,
+  "published": false,
+  "package": {
+    "archive": "build/php-hono-1.0.0.zip",
+    "bytes": 318672,
+    "sha256": "ab566b8c3288d68b89546e55164c9c59f2b5a30e4bc4d22b375e7f5176a2f106",
+    "entries": 69,
+    "consumer": {
+      "status": "passed",
+      "php": "8.5.12",
+      "packages": [
+        "nyholm/psr7",
+        "nyholm/psr7-server",
+        "php-hono/php-hono",
+        "psr/http-factory",
+        "psr/http-message",
+        "psr/http-server-handler",
+        "psr/http-server-middleware"
+      ]
+    },
+    "published": false
+  }
+}

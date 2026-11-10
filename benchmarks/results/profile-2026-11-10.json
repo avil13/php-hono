@@ -1,0 +1,8 @@
+{
+    "php": "8.5.12",
+    "routes": 1000,
+    "requests": 2000,
+    "total_ns": 306008958,
+    "routing_ns": 292275955,
+    "routing_fraction": 0.9551222190037979
+}

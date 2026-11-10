@@ -1,0 +1,11 @@
+{"bootstrap_us":7892.958,"first_dispatch_us":4676.834,"peak_bytes":4194304}
+{"bootstrap_us":8038.042,"first_dispatch_us":3488.041,"peak_bytes":4194304}
+{"bootstrap_us":6272.333,"first_dispatch_us":3829.417,"peak_bytes":4194304}
+{"bootstrap_us":8065.667,"first_dispatch_us":4402.042,"peak_bytes":4194304}
+{"bootstrap_us":6944.458,"first_dispatch_us":4143.792,"peak_bytes":4194304}
+{"bootstrap_us":8297.959,"first_dispatch_us":5060.333,"peak_bytes":4194304}
+{"bootstrap_us":7878.458,"first_dispatch_us":4226.292,"peak_bytes":4194304}
+{"bootstrap_us":6616.709,"first_dispatch_us":13533.125,"peak_bytes":4194304}
+{"bootstrap_us":6247.709,"first_dispatch_us":3245.041,"peak_bytes":4194304}
+{"bootstrap_us":6158.042,"first_dispatch_us":3385.083,"peak_bytes":4194304}
+{"php":"8.5.12","bytes":1073741824,"peak_growth_bytes":0}

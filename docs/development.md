@@ -1,25 +1,29 @@
 # Разработка и проверки
 
-[Оглавление](README.md) · План инструментов для PHP 8.5+. Команды и файлы ниже должны появиться в T01; сейчас реализации, Composer setup и установленного Git hook в проекте нет.
+[Оглавление](README.md) · PHP 8.5+. Конфигурация и команды находятся в репозитории; Git hook подключается явно для каждого checkout.
 
 ## Инструменты
 
 **Mago** используется для форматирования и lint; **PHPStan** — для проверки типов на уровне `max`; **PHPUnit** — для тестов. Mago analyzer пока не становится вторым обязательным анализатором типов. Это сохраняет отдельную проверку PHPDoc generics, callable signatures и PSR contracts в PHPStan. [Уровни PHPStan](https://phpstan.org/user-guide/rule-levels).
 
-Для T01 выбран Mago **1.59.0**, исследован стабильный тег [`95a25d686a2b584c387326e466d6ead8c885465d`](https://github.com/carthage-software/mago/tree/95a25d686a2b584c387326e466d6ead8c885465d). В исходниках есть целевая версия PHP 8.5; запуск бинарника и smoke-сценарии PHP 8.5 входят в приёмку T01. Это инструменты разработки, не зависимости production runtime. [Поддерживаемые PHP versions](https://github.com/carthage-software/mago/blob/95a25d686a2b584c387326e466d6ead8c885465d/crates/php-version/src/lib.rs).
+Проект использует Mago **1.59.0**, исследован стабильный тег [`95a25d686a2b584c387326e466d6ead8c885465d`](https://github.com/carthage-software/mago/tree/95a25d686a2b584c387326e466d6ead8c885465d). В исходниках есть целевая версия PHP 8.5; конфигурация и smoke-сценарии проверяются на PHP 8.5. Это инструменты разработки, не зависимости production runtime. [Поддерживаемые PHP versions](https://github.com/carthage-software/mago/blob/95a25d686a2b584c387326e466d6ead8c885465d/crates/php-version/src/lib.rs).
 
-Установка при реализации T01:
+Для установки зависимостей, тестов и приложения нужны PHP 8.5+ и Composer. Локальный hook вызывает `php tools/quality.php staged` напрямую: `php` должен быть доступен в PATH процесса Git, включая GUI-клиент, а Composer во время коммита не требуется. Mago анализирует синтаксис целевого PHP 8.5 независимо от runtime quality wrapper. Поддержанные платформы локального quality wrapper: macOS/Linux x86_64 и aarch64; CI использует Linux.
+
+Подготовка окружения:
 
 ```sh
-composer require --dev carthage-software/mago:1.59.0
-vendor/bin/mago --version
+composer install
+composer tools:prepare
+composer check
+composer hooks:install
 ```
 
 Версия фиксируется точным constraint и Composer lock. Composer wrapper может скачать подходящий бинарник при первом запуске; выполнить этот шаг при настройке среды/CI, до работы pre-commit. В hook нет установки зависимостей и сетевого скачивания: отсутствие подготовленного инструмента блокирует проверку с инструкцией настройки. [Установка Mago](https://github.com/carthage-software/mago/blob/95a25d686a2b584c387326e466d6ead8c885465d/docs/content/en/guide/installation.md).
 
 ## Строгая конфигурация
 
-Целевой `mago.toml` хранится в репозитории. Начальный профиль:
+`mago.toml` хранится в репозитории. Действующий профиль:
 
 ```toml
 #:schema https://mago.carthage.software/1.59.0/schema.json
@@ -53,7 +57,7 @@ no-variable-variable = { enabled = true, level = "error" }
 
 `version-drift-fail-level = "patch"` запрещает незаметную смену версии инструмента; одной настройки `version` для такого поведения недостаточно. Обновление Mago — отдельное согласованное изменение pin/lock/config с проверкой новых диагностик. [Проверка версии](https://github.com/carthage-software/mago/blob/95a25d686a2b584c387326e466d6ead8c885465d/src/version_check.rs).
 
-Список `paths` уточняется по созданным в T01 каталогам; существующие PHP-файлы проекта не должны выпадать из охвата. `vendor` используется как источник определений, но не форматируется и не lint-ится как код проекта. Исключения генерируемых файлов и fixtures задаются явно; не полагаться только на `.gitignore`. [Source configuration](https://github.com/carthage-software/mago/blob/95a25d686a2b584c387326e466d6ead8c885465d/docs/content/en/guide/configuration.md).
+Список `paths` покрывает исходники, тесты, примеры, benchmarks и PHP tools. При добавлении каталогов проверяйте охват. `vendor` используется как источник определений, но не форматируется и не lint-ится как код проекта. Исключения генерируемых файлов и fixtures задаются явно; не полагаться только на `.gitignore`. [Source configuration](https://github.com/carthage-software/mago/blob/95a25d686a2b584c387326e466d6ead8c885465d/docs/content/en/guide/configuration.md).
 
 Перед фиксацией профиля проверить фактические файлы и правила:
 
@@ -68,7 +72,7 @@ vendor/bin/mago lint --explain strict-types
 
 ## Команды проекта
 
-В T01 добавить Composer scripts с таким контрактом:
+Composer scripts:
 
 | Команда | Действие |
 | --- | --- |
@@ -86,11 +90,11 @@ CI устанавливает lockfile на PHP 8.5, проверяет верс
 
 ## Проверка перед коммитом
 
-Versioned `.githooks/pre-commit` вызывает `composer check:staged`. Проверяется **подготовленное к коммиту содержимое**, включая staged конфигурацию, а не только одноимённые рабочие файлы. Для этого T01 должна реализовать изолированный временный снимок Git index, запустить на нём `mago fmt --check` и `mago lint` с подготовленным инструментом и удалить снимок после проверки. В снимке проверяется весь configured PHP source set, чтобы изменения правил не пропустили нарушения в неизменённых файлах.
+Versioned `.githooks/pre-commit` вызывает `php tools/quality.php staged` — ту же точку входа, что и `composer check:staged`. Проверяется **подготовленное к коммиту содержимое**, включая staged конфигурацию, а не только одноимённые рабочие файлы. Для этого `tools/quality.php` экспортирует raw Git blobs во временный снимок index и запускает на нём `mago fmt --check` и `mago lint` с подготовленным инструментом и удаляет снимок после проверки. В снимке проверяется весь configured PHP source set, чтобы изменения правил не пропустили нарушения в неизменённых файлах.
 
 Workspace и config передаются явно: `mago --workspace "$staged_snapshot" --config "$staged_snapshot/mago.toml" fmt --check` и тот же prefix для `lint`. Здесь `$staged_snapshot` — путь временного снимка, а `mago` — заранее подготовленный бинарник закреплённой версии. Отсутствие staged `mago.toml` — ошибка, без fallback к пользовательскому config. Hook исключает внешние overrides вроде `MAGO_NO_VERSION_CHECK` и `MAGO_PHP_VERSION`, которые могли бы отменить pin или PHP target. CI также использует явно выбранную репозиторную конфигурацию.
 
-Hook не меняет index/working tree, не выполняет `git add`, `stash` или autofix. Он сохраняет partial staging и корректно учитывает добавленные, удалённые и переименованные файлы; пути с пробелами не разбиваются shell-ом. Конфигурация проверяется из того же снимка. Внешние определения из установленного `vendor` допустимы как зависимости, но не должны подменять staged код проекта. При ошибке подготовки снимка, отсутствии инструмента или несовпадении pin проверка завершается ошибкой.
+Hook не меняет index/working tree, не выполняет `git add`, `stash` или autofix. Он сохраняет partial staging и корректно учитывает добавленные, удалённые и переименованные файлы; пути с пробелами не разбиваются shell-ом. Конфигурация проверяется из того же снимка. Внешние определения из установленного `vendor` допустимы как зависимости, но не должны подменять staged код проекта. При ошибке подготовки снимка, отсутствии инструмента или несовпадении pin проверка завершается ошибкой. Неразрешённые конфликты, symlink и submodule в staged дереве отклоняются явно: snapshot поддерживает обычные файлы и executable bit. Checkout filters не запускаются; проверяются исходные bytes Git blobs.
 
 Локальный установленный `vendor` не обязательно соответствует staged изменению `composer.lock`: hook проверяет staged PHP-код с доступными определениями зависимостей, но не удостоверяет новый dependency graph. Проверка установки и всего набора проверок по закоммиченному lockfile обязательна в CI; hook сам зависимости не переустанавливает. Pin самого Mago должен совпадать со staged конфигурацией и lockfile, иначе локальная проверка завершается ошибкой.
 
@@ -100,7 +104,7 @@ Hook не меняет index/working tree, не выполняет `git add`, `s
 
 Локальный hook можно обойти средствами Git, поэтому CI обязательно повторяет проверки на самом commit. Полные type/integration tests не запускаются внутри pre-commit; они доступны через `composer check` и выполняются в CI.
 
-## Приёмка T01
+## Регрессионные проверки toolchain
 
 - На PHP 8.5 Mago принимает конфигурацию, корректный код проходит, а намеренно плохое форматирование и lint violation дают ненулевой exit code в локальной команде, hook и CI.
 - `strict_types`, PHP 8.5 syntax и PHPStan generic accessor проверены минимальными сценариями; типизация самого `Context::extension()` дополнительно проверяется в T06.
@@ -108,4 +112,18 @@ Hook не меняет index/working tree, не выполняет `git add`, `s
 - Изменение `mago.toml`, rename/delete и пути с пробелами учитываются; после успеха и ошибки staged/unstaged содержимое остаётся побайтно прежним, временные файлы удалены.
 - Существующие hooks сохраняются; отсутствующий бинарник не приводит к успешному пропуску проверки или сетевой установке из hook.
 
+Тесты `tests/Tooling` создают временные Git repositories и проверяют эти сценарии без изменения текущего index или Git hooks. Основной CI запускает `composer check`; отдельная runtime matrix выполняет [FPM/FrankenPHP HTTP-проверки](deployment.md#воспроизводимая-проверка-транспорта). Сторонний swew/test не входит в обязательный toolchain; тестовый API проекта — PHPUnit.
+
 Далее: [тестирование](testing.md), [план T01](../spec/tasks/01-mvp.md#t01), [архитектура проверок](../spec/03-architecture.md).
+
+## Проверка архива библиотеки
+
+```sh
+php tools/release/check-package.php
+```
+
+Команда требует PHP 8.5, актуальный Composer 2 и `unzip`; при необходимости путь к Composer PHAR задаётся переменной `COMPOSER_BINARY`. Проверенная локальная версия — Composer 2.11.2. Старый Composer 2.8.9 несовместим с PHP 8.5 в сценарии загрузки локального ZIP; системную установку можно оставить без изменений и передать отдельный PHAR.
+
+Проверка создаёт `build/php-hono-1.0.0.zip`, проверяет состав архива, устанавливает его вместе с production dependencies в отдельный временный consumer и выполняет routing/JSON/PSR-15 smoke. `vendor`, кеши, build, tests, tools и конфигурация разработки исключены через `.gitattributes` и `composer.json` archive settings. Исходники, документация, примеры и лицензия остаются в пакете. Результат сохраняется в `build/package-check.json`, временный consumer удаляется.
+
+Версия `1.0.0` назначается только записи локального package repository для проверки неопубликованного ZIP; команда не создаёт Git tag и не публикует пакет. Перед выпуском повторите её после финальных изменений. CI также проверяет ограничение памяти генератора командой `php benchmarks/stream-memory.php`.

@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-10",
+  "cpu": "Apple M3 Pro",
+  "host_memory_bytes": 38654705664,
+  "host": "Darwin 25.6.0 arm64",
+  "docker_cpus": 12,
+  "docker_memory_bytes": 8214585344,
+  "php": "8.5.12",
+  "cli_opcache": false,
+  "fpm_opcache": true,
+  "cli_fpm_jit": "disabled",
+  "native_worker": "FrankenPHP 1.13.5 / PHP 8.5.12",
+  "worker_processes": 1,
+  "node": "26.11.1",
+  "source_sha256": "26e3fe13a7e162e4c24326fbc33b6288de42a2372c5bfb3b468e212cf9fe9108"
+}

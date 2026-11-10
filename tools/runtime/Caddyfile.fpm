@@ -1,0 +1,12 @@
+{
+	auto_https off
+	admin off
+}
+:8080 {
+	root * /app/tests/Fixtures
+	php_fastcgi fpm:9000 {
+		try_files runtime.php
+		env PHP_HONO_TEST_DIRECTORY /state
+		flush_interval -1
+	}
+}

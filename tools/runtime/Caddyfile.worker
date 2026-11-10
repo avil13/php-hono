@@ -1,0 +1,25 @@
+{
+	persist_config off
+	auto_https off
+	admin off
+	frankenphp {
+		num_threads 2
+		php_ini post_max_size 2K
+		php_ini upload_max_filesize 1K
+		php_ini output_buffering 0
+		php_ini display_errors 0
+		worker {
+			file {$PHP_HONO_TEST_ROOT}/tests/Fixtures/runtime.php
+			num 1
+			env PHP_HONO_TEST_WORKER 1
+			env PHP_HONO_TEST_DIRECTORY {$PHP_HONO_TEST_DIRECTORY}
+			env PHP_HONO_TEST_MAX_REQUESTS {$PHP_HONO_TEST_MAX_REQUESTS:20}
+		}
+	}
+}
+http://127.0.0.1:{$PHP_HONO_WORKER_PORT:18086} {
+	bind 127.0.0.1
+	root * {$PHP_HONO_TEST_ROOT}/tests/Fixtures
+	rewrite * /runtime.php
+	php
+}

@@ -1,0 +1,870 @@
+{
+  "upstreamVersion": "4.13.16",
+  "upstreamCommit": "c91b60a251186fb024557c6d55a11d8e388f179c",
+  "fixtures": [
+    {
+      "id": "ordered-overlap",
+      "feature": "C-01/C-02",
+      "classification": "intentional-difference",
+      "explanation": "PHP restores each handler's own path parameters after next(); upstream leaves the downstream route's parameters active.",
+      "sourceTest": "src/hono.test.ts",
+      "routes": [
+        {
+          "method": "USE",
+          "path": "*",
+          "kind": "trace",
+          "value": "global"
+        },
+        {
+          "method": "GET",
+          "path": "/users/:id",
+          "kind": "trace",
+          "value": "dynamic"
+        },
+        {
+          "method": "GET",
+          "path": "/users/me",
+          "kind": "text",
+          "value": "me"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/users/me"
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain;charset=UTF-8"
+          },
+          "body": "me",
+          "trace": [
+            {
+              "step": "global:before",
+              "params": {}
+            },
+            {
+              "step": "dynamic:before",
+              "params": {
+                "id": "me"
+              }
+            },
+            {
+              "step": "dynamic:after",
+              "params": {}
+            },
+            {
+              "step": "global:after",
+              "params": {}
+            }
+          ]
+        }
+      ],
+      "phpExpected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain;charset=UTF-8"
+          },
+          "body": "me",
+          "trace": [
+            {
+              "step": "global:before",
+              "params": {}
+            },
+            {
+              "step": "dynamic:before",
+              "params": {
+                "id": "me"
+              }
+            },
+            {
+              "step": "dynamic:after",
+              "params": {
+                "id": "me"
+              }
+            },
+            {
+              "step": "global:after",
+              "params": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "onion-order",
+      "feature": "C-02",
+      "sourceTest": "src/compose.test.ts",
+      "routes": [
+        {
+          "method": "USE",
+          "path": "*",
+          "kind": "order",
+          "value": "first"
+        },
+        {
+          "method": "USE",
+          "path": "*",
+          "kind": "order",
+          "value": "second"
+        },
+        {
+          "method": "GET",
+          "path": "/",
+          "kind": "text",
+          "value": "endpoint"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain;charset=UTF-8"
+          },
+          "body": "endpoint",
+          "trace": [
+            {
+              "step": "first:before"
+            },
+            {
+              "step": "second:before"
+            },
+            {
+              "step": "second:after"
+            },
+            {
+              "step": "first:after"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "terminal-wildcard",
+      "feature": "C-01",
+      "sourceTest": "src/router/common.case.test.ts",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/api/*",
+          "kind": "text",
+          "value": "api"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api"
+        },
+        {
+          "method": "GET",
+          "path": "/api/"
+        },
+        {
+          "method": "GET",
+          "path": "/api/a/b"
+        },
+        {
+          "method": "GET",
+          "path": "/api2"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain;charset=UTF-8"
+          },
+          "body": "api",
+          "trace": []
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain;charset=UTF-8"
+          },
+          "body": "api",
+          "trace": []
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain;charset=UTF-8"
+          },
+          "body": "api",
+          "trace": []
+        },
+        {
+          "status": 404,
+          "headers": {
+            "content-type": "text/plain; charset=UTF-8"
+          },
+          "body": "404 Not Found",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "optional-parameter",
+      "feature": "C-01/C-03",
+      "sourceTest": "src/hono.test.ts#L2608",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/hello/:name?",
+          "kind": "params"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/hello"
+        },
+        {
+          "method": "GET",
+          "path": "/hello/Ada"
+        },
+        {
+          "method": "GET",
+          "path": "/hello/"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{}",
+          "trace": []
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"name\":\"Ada\"}",
+          "trace": []
+        },
+        {
+          "status": 404,
+          "headers": {
+            "content-type": "text/plain; charset=UTF-8"
+          },
+          "body": "404 Not Found",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "optional-root",
+      "feature": "C-01/C-03",
+      "sourceTest": "src/router/common.case.test.ts#L100",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/:name?",
+          "kind": "params"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/"
+        },
+        {
+          "method": "GET",
+          "path": "/Ada"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{}",
+          "trace": []
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"name\":\"Ada\"}",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "regex-segment",
+      "feature": "C-01/C-03",
+      "sourceTest": "src/router/common.case.test.ts",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/orders/:id{[0-9]+}",
+          "kind": "params"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/orders/42"
+        },
+        {
+          "method": "GET",
+          "path": "/orders/no"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"id\":\"42\"}",
+          "trace": []
+        },
+        {
+          "status": 404,
+          "headers": {
+            "content-type": "text/plain; charset=UTF-8"
+          },
+          "body": "404 Not Found",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "encoded-parameter",
+      "feature": "C-01/C-03",
+      "sourceTest": "src/request.test.ts",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/files/:name",
+          "kind": "params"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/files/a%2Fb"
+        },
+        {
+          "method": "GET",
+          "path": "/files/a%252Fb"
+        },
+        {
+          "method": "GET",
+          "path": "/files/%D1%82%D0%B5%D1%81%D1%82"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"name\":\"a/b\"}",
+          "trace": []
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"name\":\"a%2Fb\"}",
+          "trace": []
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"name\":\"тест\"}",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "duplicate-param-first",
+      "feature": "C-01/C-03",
+      "sourceTest": "src/router/common.case.test.ts",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/:id/:id",
+          "kind": "params"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/first/second"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"id\":\"first\"}",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "strict-slash",
+      "feature": "C-01",
+      "sourceTest": "src/hono.test.ts",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/about",
+          "kind": "text",
+          "value": "about"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/about"
+        },
+        {
+          "method": "GET",
+          "path": "/about/"
+        },
+        {
+          "method": "GET",
+          "path": "/About"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain;charset=UTF-8"
+          },
+          "body": "about",
+          "trace": []
+        },
+        {
+          "status": 404,
+          "headers": {
+            "content-type": "text/plain; charset=UTF-8"
+          },
+          "body": "404 Not Found",
+          "trace": []
+        },
+        {
+          "status": 404,
+          "headers": {
+            "content-type": "text/plain; charset=UTF-8"
+          },
+          "body": "404 Not Found",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "method-and-head",
+      "feature": "C-05",
+      "sourceTest": "src/hono.test.ts#L3000",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/page",
+          "kind": "method"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/page"
+        },
+        {
+          "method": "HEAD",
+          "path": "/page"
+        },
+        {
+          "method": "POST",
+          "path": "/page"
+        },
+        {
+          "method": "OPTIONS",
+          "path": "/page"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain; charset=UTF-8",
+            "x-method": "GET"
+          },
+          "body": "page",
+          "trace": []
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain; charset=UTF-8",
+            "x-method": "HEAD"
+          },
+          "body": "",
+          "trace": []
+        },
+        {
+          "status": 404,
+          "headers": {
+            "content-type": "text/plain; charset=UTF-8"
+          },
+          "body": "404 Not Found",
+          "trace": []
+        },
+        {
+          "status": 404,
+          "headers": {
+            "content-type": "text/plain; charset=UTF-8"
+          },
+          "body": "404 Not Found",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "short-circuit",
+      "feature": "C-02",
+      "sourceTest": "src/compose.test.ts",
+      "routes": [
+        {
+          "method": "USE",
+          "path": "*",
+          "kind": "text",
+          "value": "early"
+        },
+        {
+          "method": "GET",
+          "path": "/",
+          "kind": "text",
+          "value": "late"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain;charset=UTF-8"
+          },
+          "body": "early",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "return-after-next",
+      "feature": "C-02",
+      "sourceTest": "src/compose.test.ts",
+      "routes": [
+        {
+          "method": "USE",
+          "path": "*",
+          "kind": "returnAfter",
+          "value": "ignored"
+        },
+        {
+          "method": "GET",
+          "path": "/",
+          "kind": "text",
+          "value": "endpoint"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain;charset=UTF-8"
+          },
+          "body": "endpoint",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "replace-after-next",
+      "feature": "C-02/C-04",
+      "sourceTest": "src/context.test.ts",
+      "routes": [
+        {
+          "method": "USE",
+          "path": "*",
+          "kind": "replaceAfter",
+          "value": "replaced"
+        },
+        {
+          "method": "GET",
+          "path": "/",
+          "kind": "text",
+          "value": "endpoint"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain; charset=UTF-8"
+          },
+          "body": "replaced",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "error-onion",
+      "feature": "C-02/C-05",
+      "sourceTest": "src/hono.test.ts#L1889",
+      "onError": true,
+      "routes": [
+        {
+          "method": "USE",
+          "path": "*",
+          "kind": "headerAfter",
+          "value": "yes"
+        },
+        {
+          "method": "GET",
+          "path": "/",
+          "kind": "throw",
+          "value": "failure"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 500,
+          "headers": {
+            "content-type": "text/plain; charset=UTF-8",
+            "x-after": "yes"
+          },
+          "body": "handled:failure",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "query-values",
+      "feature": "C-03",
+      "sourceTest": "src/request.test.ts",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/query",
+          "kind": "query"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/query?x=one&x=two&a.b=dot&a+b=space&list%5B%5D=first&list%5B%5D=second"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"first\":\"one\",\"all\":[\"one\",\"two\"],\"dot\":\"dot\",\"space\":\"space\",\"list\":[\"first\",\"second\"]}",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "body-json",
+      "feature": "C-03",
+      "sourceTest": "src/request.test.ts",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/echo",
+          "kind": "jsonBody"
+        }
+      ],
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/echo",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": "{\"name\":\"Ada\",\"tags\":[1,2]}"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"name\":\"Ada\",\"tags\":[1,2]}",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "repeat-body-read",
+      "feature": "C-03",
+      "sourceTest": "src/request.test.ts",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/echo",
+          "kind": "twiceBody"
+        }
+      ],
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/echo",
+          "body": "hello"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "[\"hello\",\"hello\"]",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "form-duplicates",
+      "feature": "C-03",
+      "sourceTest": "src/utils/body.test.ts",
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/form",
+          "kind": "form"
+        }
+      ],
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/form",
+          "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          "body": "x=one&x=two&list%5B%5D=first&list%5B%5D=second"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"x\":[\"one\",\"two\"],\"list[]\":[\"first\",\"second\"]}",
+          "trace": []
+        }
+      ]
+    },
+    {
+      "id": "context-request-isolation",
+      "feature": "C-04/C-07",
+      "sourceTest": "src/context.test.ts",
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/state",
+          "kind": "state"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/state"
+        },
+        {
+          "method": "GET",
+          "path": "/state"
+        }
+      ],
+      "classification": "compatible",
+      "expected": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"count\":1}",
+          "trace": []
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "body": "{\"count\":1}",
+          "trace": []
+        }
+      ]
+    }
+  ]
+}

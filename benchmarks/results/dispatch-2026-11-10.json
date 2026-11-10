@@ -1,0 +1,335 @@
+{
+    "php": "8.5.12",
+    "os": "Linux",
+    "opcache_cli": "0",
+    "jit": "disable",
+    "iterations": 1000,
+    "rounds": 5,
+    "peak_memory_bytes": 4194304,
+    "results": [
+        {
+            "routes": 10,
+            "middleware": 0,
+            "mode": "native",
+            "bootstrap_us": 1969.209,
+            "median_us": 6.808583,
+            "min_us": 6.468375,
+            "max_us": 18.320667
+        },
+        {
+            "routes": 10,
+            "middleware": 0,
+            "mode": "psr",
+            "bootstrap_us": 41.458,
+            "median_us": 6.424416,
+            "min_us": 6.317208,
+            "max_us": 6.861042
+        },
+        {
+            "routes": 10,
+            "middleware": 0,
+            "mode": "extension",
+            "bootstrap_us": 45.875,
+            "median_us": 7.332917,
+            "min_us": 7.218667,
+            "max_us": 7.410417000000001
+        },
+        {
+            "routes": 10,
+            "middleware": 1,
+            "mode": "native",
+            "bootstrap_us": 42.833,
+            "median_us": 7.0316670000000006,
+            "min_us": 6.975957999999999,
+            "max_us": 7.472625
+        },
+        {
+            "routes": 10,
+            "middleware": 1,
+            "mode": "psr",
+            "bootstrap_us": 718.5,
+            "median_us": 13.689125,
+            "min_us": 13.402833000000001,
+            "max_us": 23.820875
+        },
+        {
+            "routes": 10,
+            "middleware": 1,
+            "mode": "extension",
+            "bootstrap_us": 42.417,
+            "median_us": 8.47575,
+            "min_us": 7.817791000000001,
+            "max_us": 9.062833000000001
+        },
+        {
+            "routes": 10,
+            "middleware": 5,
+            "mode": "native",
+            "bootstrap_us": 48,
+            "median_us": 9.853584000000001,
+            "min_us": 9.582540999999999,
+            "max_us": 10.211333
+        },
+        {
+            "routes": 10,
+            "middleware": 5,
+            "mode": "psr",
+            "bootstrap_us": 47.75,
+            "median_us": 39.904834,
+            "min_us": 39.043292,
+            "max_us": 49.013332999999996
+        },
+        {
+            "routes": 10,
+            "middleware": 5,
+            "mode": "extension",
+            "bootstrap_us": 39.833,
+            "median_us": 10.217792,
+            "min_us": 10.150292,
+            "max_us": 10.248708
+        },
+        {
+            "routes": 10,
+            "middleware": 10,
+            "mode": "native",
+            "bootstrap_us": 44.75,
+            "median_us": 12.295041,
+            "min_us": 12.137375,
+            "max_us": 21.791167
+        },
+        {
+            "routes": 10,
+            "middleware": 10,
+            "mode": "psr",
+            "bootstrap_us": 43.208,
+            "median_us": 70.806917,
+            "min_us": 69.821417,
+            "max_us": 79.11075
+        },
+        {
+            "routes": 10,
+            "middleware": 10,
+            "mode": "extension",
+            "bootstrap_us": 50.208,
+            "median_us": 13.77375,
+            "min_us": 13.715375,
+            "max_us": 21.536875
+        },
+        {
+            "routes": 100,
+            "middleware": 0,
+            "mode": "native",
+            "bootstrap_us": 321.417,
+            "median_us": 19.030959,
+            "min_us": 18.776833,
+            "max_us": 19.786417
+        },
+        {
+            "routes": 100,
+            "middleware": 0,
+            "mode": "psr",
+            "bootstrap_us": 188.958,
+            "median_us": 20.600583999999998,
+            "min_us": 18.652667,
+            "max_us": 27.0615
+        },
+        {
+            "routes": 100,
+            "middleware": 0,
+            "mode": "extension",
+            "bootstrap_us": 199.333,
+            "median_us": 20.49375,
+            "min_us": 20.186876,
+            "max_us": 21.507917000000003
+        },
+        {
+            "routes": 100,
+            "middleware": 1,
+            "mode": "native",
+            "bootstrap_us": 184.709,
+            "median_us": 19.834708,
+            "min_us": 19.681417,
+            "max_us": 29.046125
+        },
+        {
+            "routes": 100,
+            "middleware": 1,
+            "mode": "psr",
+            "bootstrap_us": 184.792,
+            "median_us": 26.35525,
+            "min_us": 26.140416000000002,
+            "max_us": 26.508208
+        },
+        {
+            "routes": 100,
+            "middleware": 1,
+            "mode": "extension",
+            "bootstrap_us": 190.833,
+            "median_us": 20.901292,
+            "min_us": 20.591792,
+            "max_us": 29.655416000000002
+        },
+        {
+            "routes": 100,
+            "middleware": 5,
+            "mode": "native",
+            "bootstrap_us": 195.042,
+            "median_us": 21.8105,
+            "min_us": 21.79825,
+            "max_us": 21.893416000000002
+        },
+        {
+            "routes": 100,
+            "middleware": 5,
+            "mode": "psr",
+            "bootstrap_us": 186.584,
+            "median_us": 54.3145,
+            "min_us": 52.021167,
+            "max_us": 64.535959
+        },
+        {
+            "routes": 100,
+            "middleware": 5,
+            "mode": "extension",
+            "bootstrap_us": 202.959,
+            "median_us": 23.592375,
+            "min_us": 22.753332999999998,
+            "max_us": 24.769375
+        },
+        {
+            "routes": 100,
+            "middleware": 10,
+            "mode": "native",
+            "bootstrap_us": 193.792,
+            "median_us": 25.128042,
+            "min_us": 24.844042,
+            "max_us": 34.933834000000004
+        },
+        {
+            "routes": 100,
+            "middleware": 10,
+            "mode": "psr",
+            "bootstrap_us": 204.042,
+            "median_us": 84.690959,
+            "min_us": 83.65675,
+            "max_us": 93.691708
+        },
+        {
+            "routes": 100,
+            "middleware": 10,
+            "mode": "extension",
+            "bootstrap_us": 201.541,
+            "median_us": 26.613332999999997,
+            "min_us": 26.061417000000002,
+            "max_us": 39.87125
+        },
+        {
+            "routes": 1000,
+            "middleware": 0,
+            "mode": "native",
+            "bootstrap_us": 2665.542,
+            "median_us": 151.042625,
+            "min_us": 144.16083300000003,
+            "max_us": 153.75616699999998
+        },
+        {
+            "routes": 1000,
+            "middleware": 0,
+            "mode": "psr",
+            "bootstrap_us": 1636.542,
+            "median_us": 149.69220800000002,
+            "min_us": 140.389125,
+            "max_us": 152.601709
+        },
+        {
+            "routes": 1000,
+            "middleware": 0,
+            "mode": "extension",
+            "bootstrap_us": 1709.333,
+            "median_us": 152.927542,
+            "min_us": 142.445625,
+            "max_us": 157.257084
+        },
+        {
+            "routes": 1000,
+            "middleware": 1,
+            "mode": "native",
+            "bootstrap_us": 1680.708,
+            "median_us": 152.741208,
+            "min_us": 143.461209,
+            "max_us": 156.228375
+        },
+        {
+            "routes": 1000,
+            "middleware": 1,
+            "mode": "psr",
+            "bootstrap_us": 3358.375,
+            "median_us": 165.142709,
+            "min_us": 149.364125,
+            "max_us": 172.643459
+        },
+        {
+            "routes": 1000,
+            "middleware": 1,
+            "mode": "extension",
+            "bootstrap_us": 1671.792,
+            "median_us": 154.270959,
+            "min_us": 144.22975,
+            "max_us": 161.694
+        },
+        {
+            "routes": 1000,
+            "middleware": 5,
+            "mode": "native",
+            "bootstrap_us": 1668.75,
+            "median_us": 157.34775,
+            "min_us": 146.390376,
+            "max_us": 162.380292
+        },
+        {
+            "routes": 1000,
+            "middleware": 5,
+            "mode": "psr",
+            "bootstrap_us": 1745.625,
+            "median_us": 186.84845800000002,
+            "min_us": 186.17291699999998,
+            "max_us": 194.577834
+        },
+        {
+            "routes": 1000,
+            "middleware": 5,
+            "mode": "extension",
+            "bootstrap_us": 1681.667,
+            "median_us": 157.197625,
+            "min_us": 144.74775,
+            "max_us": 162.0805
+        },
+        {
+            "routes": 1000,
+            "middleware": 10,
+            "mode": "native",
+            "bootstrap_us": 1739.416,
+            "median_us": 157.51808300000002,
+            "min_us": 147.736791,
+            "max_us": 161.408375
+        },
+        {
+            "routes": 1000,
+            "middleware": 10,
+            "mode": "psr",
+            "bootstrap_us": 1745.125,
+            "median_us": 218.210708,
+            "min_us": 216.308001,
+            "max_us": 266.702542
+        },
+        {
+            "routes": 1000,
+            "middleware": 10,
+            "mode": "extension",
+            "bootstrap_us": 1706.5,
+            "median_us": 159.02,
+            "min_us": 147.66875,
+            "max_us": 161.564667
+        }
+    ]
+}

@@ -1,0 +1,93 @@
+{
+    "php": "8.5.12",
+    "os": "Linux",
+    "iterations": 1000,
+    "rounds": 5,
+    "peak_bytes": 4194304,
+    "results": [
+        {
+            "routes": 10,
+            "scenario": "static",
+            "median_us": 1.901416,
+            "min_us": 1.82175,
+            "max_us": 1.9767919999999999
+        },
+        {
+            "routes": 10,
+            "scenario": "dynamic",
+            "median_us": 2.08025,
+            "min_us": 2.016292,
+            "max_us": 2.343875
+        },
+        {
+            "routes": 10,
+            "scenario": "miss",
+            "median_us": 1.3327909999999998,
+            "min_us": 1.292458,
+            "max_us": 1.3635419999999998
+        },
+        {
+            "routes": 10,
+            "scenario": "overlap",
+            "median_us": 2.3365,
+            "min_us": 2.274125,
+            "max_us": 2.556166
+        },
+        {
+            "routes": 100,
+            "scenario": "static",
+            "median_us": 13.886125,
+            "min_us": 13.609958,
+            "max_us": 24.56675
+        },
+        {
+            "routes": 100,
+            "scenario": "dynamic",
+            "median_us": 13.548,
+            "min_us": 13.361708,
+            "max_us": 14.115083
+        },
+        {
+            "routes": 100,
+            "scenario": "miss",
+            "median_us": 10.14725,
+            "min_us": 10.077708000000001,
+            "max_us": 10.2185
+        },
+        {
+            "routes": 100,
+            "scenario": "overlap",
+            "median_us": 13.837583,
+            "min_us": 13.766208,
+            "max_us": 14.238875
+        },
+        {
+            "routes": 1000,
+            "scenario": "static",
+            "median_us": 138.95162599999998,
+            "min_us": 131.575334,
+            "max_us": 142.36
+        },
+        {
+            "routes": 1000,
+            "scenario": "dynamic",
+            "median_us": 143.26425,
+            "min_us": 135.656125,
+            "max_us": 146.335667
+        },
+        {
+            "routes": 1000,
+            "scenario": "miss",
+            "median_us": 111.9495,
+            "min_us": 104.983667,
+            "max_us": 115.392875
+        },
+        {
+            "routes": 1000,
+            "scenario": "overlap",
+            "median_us": 144.71620800000002,
+            "min_us": 135.52620800000003,
+            "max_us": 147.237209
+        }
+    ]
+}

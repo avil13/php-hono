@@ -1,0 +1,86 @@
+{
+    "name": "php-hono/php-hono",
+    "description": "A small PHP 8.5 HTTP framework with Hono-style routing and PSR-15 middleware interoperability.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.5",
+        "ext-json": "*",
+        "ext-pcre": "*",
+        "nyholm/psr7": "^1.8.2",
+        "nyholm/psr7-server": "^1.1",
+        "psr/http-factory": "^1.1",
+        "psr/http-message": "^2.0",
+        "psr/http-server-handler": "^1.0",
+        "psr/http-server-middleware": "^1.0"
+    },
+    "require-dev": {
+        "carthage-software/mago": "1.59.0",
+        "guzzlehttp/psr7": "^2.8",
+        "middlewares/response-time": "^2.1",
+        "middlewares/uuid": "^2.1",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^12.5",
+        "psr/container": "^2.0"
+    },
+    "suggest": {
+        "ext-fileinfo": "Required for static file MIME detection.",
+        "ext-zlib": "Required for gzip compression middleware."
+    },
+    "autoload": {
+        "psr-4": {
+            "PhpHono\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PhpHono\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "tools:prepare": "@php vendor/bin/mago --version",
+        "format": "@php tools/quality.php format",
+        "format:check": "@php tools/quality.php format:check",
+        "lint": "@php tools/quality.php lint",
+        "analyse": "phpstan analyse --configuration=phpstan.neon.dist --no-progress",
+        "test": "phpunit --configuration=phpunit.xml",
+        "check:style": [
+            "@format:check",
+            "@lint"
+        ],
+        "check": [
+            "@check:style",
+            "@analyse",
+            "@test"
+        ],
+        "check:staged": "@php tools/quality.php staged",
+        "hooks:install": "@php tools/install-hooks.php"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {}
+    },
+    "archive": {
+        "exclude": [
+            "/vendor",
+            "/var",
+            "/build",
+            "/coverage",
+            "/.git",
+            "/.github",
+            "/.githooks",
+            "/.gitignore",
+            "/.gitattributes",
+            "/benchmarks",
+            "/spec",
+            "/tests",
+            "/tools",
+            "/mago.toml",
+            "/phpstan.neon.dist",
+            "/phpunit.xml",
+            "/composer.lock",
+            "/AGENTS.md",
+            "/.DS_Store"
+        ]
+    }
+}

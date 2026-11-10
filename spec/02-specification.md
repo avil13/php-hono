@@ -1,5 +1,7 @@
 # Спецификация PHP Hono
 
+Выбранный профиль реализован 10 ноября 2026. Окончательные PHP-сигнатуры — [API reference](../docs/api.md), доказательства проверок — [статус реализации](implementation-status.md). Историческое разделение MVP/1.0 сохранено для трассировки задач.
+
 ## Цель и границы
 
 Создать небольшой HTTP-фреймворк на **PHP 8.5+**: выразительная регистрация маршрутов, композиция middleware, удобный Context, минимум конфигурации и тестирование без веб-сервера. Поддерживаемый профиль поведения основан на Hono 4.13.16; [источники](01-research.md).
@@ -67,7 +69,9 @@ $response = $app->request('/users/42');
 - Path имеет configurable предел 8192 bytes по умолчанию; превышение даёт 414. Для PCRE задать конечные per-pattern match/depth limits без изменения глобальных настроек процесса; resource/backtracking errors — ошибка исполнения через onError, а не отсутствие match/404. Конкретные значения и adversarial cases закрепить в T02.
 - `*` внутри пути, suffix wildcard `/assets*`, несколько optional segments и regex через несколько сегментов не поддерживаются до отдельного расширения. Не трактовать их молча как другой маршрут.
 - Все совпавшие handlers идут в порядке регистрации; параметры хранятся на каждом совпадении. При повторе имени в пути сохраняется первое значение. Параметры endpoint не появляются заранее у глобального middleware.
+- После `$next()` восстанавливаются параметры вызывающего handler; upstream Hono оставляет параметры последнего downstream handler. Это намеренное отличие, сохранённое в manifest и differential fixture.
 - `strict=true` по умолчанию различает `/a` и `/a/`; `strict=false` удаляет один последний `/` входного пути, кроме корня. Не добавлять redirect автоматически.
+- В PHP `req->path()` сохраняет исходный encoded URI path и при `strict=false`; нормализация относится только к matching. Отличие от upstream отмечено в manifest и PHP-тесте.
 - Регистрация замораживается при первом dispatch; позднее добавление маршрута или middleware, включая изменение через basePath view, даёт явную ошибку конфигурации.
 - `route()` импортирует snapshot child routes; child должен быть сконфигурирован заранее. Импортировать дочерний error handler, использовать корневой notFound. `basePath()` делит таблицу, но не изменяет префикс исходного экземпляра.
 
@@ -138,7 +142,7 @@ PSR-15 attributes и Context variables — отдельные хранилища
 
 ## Явные различия и исключения
 
-Все различия перечисляются в будущем `docs/compatibility.md` и имеют собственные PHP-tests: PSR вместо Fetch; sync вместо Promise; обязательные paths; ограниченная route grammar и path length; 400 для malformed URI; единый 500 для забывшего Response handler; правила headers при замене Response; PHP JSON types/числа; SAPI multipart normalization; конечный body buffer и проверка фактической длины даже при наличии Content-Length; отсутствие browser/edge bindings и TypeScript inference. Integer-like ключи PHP array могут приводиться к int — точное JS object key typing не обещается. JSX/WebSocket намеренно отсутствуют по требованию пользователя.
+Все различия перечисляются в `docs/compatibility.md` и имеют собственные PHP-tests: PSR вместо Fetch; sync вместо Promise; обязательные paths; ограниченная route grammar и path length; 400 для malformed URI; единый 500 для забывшего Response handler; правила headers при замене Response; PHP JSON types/числа; SAPI multipart normalization; конечный body buffer и проверка фактической длины даже при наличии Content-Length; отсутствие browser/edge bindings и TypeScript inference. Integer-like ключи PHP array могут приводиться к int — точное JS object key typing не обещается. JSX/WebSocket намеренно отсутствуют по требованию пользователя.
 
 Неподдерживаемые параметры API должны отклоняться явно. Не добавлять заглушки, которые возвращают успешный результат без выполнения обещанной функции.
 
